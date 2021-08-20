@@ -1,6 +1,6 @@
 # Code of Conduct
 
-This code of conduct outlines our expectations for participants within the HUGB Software Engineering project in Fall 2020, at Reykjavik University. It is a slightly adapted version of the [Twitter Code of Conduct v2.0](https://github.com/twitter/code-of-conduct/blob/master/code-of-conduct.md). This project is meant to be a welcoming and inspiring activity for all - therefore we expect this code of conduct to be honored. Violating this code of conduct may be lead to a fail degree in the project work.
+This code of conduct outlines our expectations for participants within the HUGB Software Engineering project in Fall 2021, at Reykjavik University. It is a slightly adapted version of the [Twitter Code of Conduct v2.0](https://github.com/twitter/code-of-conduct/blob/master/code-of-conduct.md). This project is meant to be a welcoming and inspiring activity for all - therefore we expect this code of conduct to be honored. Violating this code of conduct may be lead to a fail degree in the project work.
 
 Our student community strives to:
 
