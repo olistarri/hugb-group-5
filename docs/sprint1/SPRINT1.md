@@ -17,6 +17,8 @@ In the end we decided to pursue the barber shop idea, and to create a system for
 
 # Second group meeting - 30 August
 Our decicion protocol is that we brainstorm ideas and vote, the scrum master gets 1.5 votes to handle tied votes.
+We used a random number generator to decide on the first scrum master.
+Kári Georgsson is the current scrum master.
 
 As we mentioned in the last meeting, the system is for a hypothetical barbershop.
 We had a discussion about what kind of barber shop the system is for and the conclusion was that the system
