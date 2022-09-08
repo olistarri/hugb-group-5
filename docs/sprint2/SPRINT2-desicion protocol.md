@@ -13,3 +13,6 @@ We started by reviewing the user stories, adding four additional that we felt li
 Next we made implementable tasks from these user stories. The tasks are stored under issues -> boards -> sprint 2 backlog.
 
 Next we made the definition of done. It is stored under issues -> tasks (which are the definition of done that we have to finish).
+
+#08/09/2022 Finishing the definition of done.
+We had a short Discord meeting about the definition of done, went over it and the scrum master turned it in for further feedback.
