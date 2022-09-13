@@ -1,9 +1,11 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
+const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 
 app.use(express.static(path.join(__dirname, '/../pages/')));
+app.use(bodyParser.json());
 
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
@@ -26,6 +28,20 @@ app.get(apiVersion + 'api/appointments', async (req: Request, res: Response) => 
 
 app.get(apiVersion + 'api/barbers', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Barbers").find({}).toArray();
+  return res.status(200).json(Users);
+});
+
+//Post endpoint for users
+app.post(apiVersion + '/users', async (req: any, res: Response) => {
+  //check if body is valid
+  if (req.body == null) {
+    console.log(req);
+    return res.status(400).json({ message: 'Invalid body' });
+  }
+  if (req.body.name == null || req.body.username == null || req.body.email == null || req.body.password == null || req.body.phone == null) {
+    return res.status(400).json({message: "Bad request. Request needs to contain name, username, email, password and phone."});
+  }
+  const Users:JSON = await Database.collection("Users").insertOne(req.body);
   return res.status(200).json(Users);
 });
 
