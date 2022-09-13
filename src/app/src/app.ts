@@ -13,18 +13,18 @@ client.connect();
 const Database = client.db("BarberShop")
 
 
-app.get('/Users', async (req: Request, res: Response) => {
+app.get('/users', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Users").find({}).toArray();
   return res.status(200).json(Users);
 });
 
 
-app.get('/Appointments', async (req: Request, res: Response) => {
+app.get('/appointments', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Appointments").find({}).toArray();
   return res.status(200).json(Users);
 });
 
-app.get('/Barbers', async (req: Request, res: Response) => {
+app.get('/barbers', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Barbers").find({}).toArray();
   return res.status(200).json(Users);
 });
