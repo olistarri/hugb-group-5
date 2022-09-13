@@ -23,15 +23,16 @@ const URI = "mongodb+srv://Demo:Nsi8yQYWYYQXc5GM@hugb-hopur5.59nlce1.mongodb.net
 const client = new MongoClient(URI, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect();
 const Database = client.db("BarberShop");
-app.get('/Users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const apiVersion = "/api/v1";
+app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Users").find({}).toArray();
     return res.status(200).json(Users);
 }));
-app.get('/Appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get(apiVersion + 'api/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Appointments").find({}).toArray();
     return res.status(200).json(Users);
 }));
-app.get('/Barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get(apiVersion + 'api/barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Barbers").find({}).toArray();
     return res.status(200).json(Users);
 }));
