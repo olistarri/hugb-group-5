@@ -17,20 +17,20 @@ describe('Endpoint tests', () => {
         done();
     });
     
-    // GET User endpoint test
-    it("GET endpoint test for /users", function (done) {
+    // GET User endpoint test -- DONE
+    it("GET /users", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/users")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
-            res.body.length.should.be.eql(4)
+            // res.body.length.should.be.eql(4)
             done();
             });
     });
 
-    it("GET endpoint test for one user", function (done) {
+    it("GET one specific user", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/users/6320b455e9fbd820b1325bbd")
             .end((err, res) => {
@@ -39,7 +39,7 @@ describe('Endpoint tests', () => {
             res.body.should.have.property('_id').eql("6320b455e9fbd820b1325bbd");
             res.body.should.have.property('username').eql("Sindri");
             res.body.should.have.property('password').eql("sindri12");
-            res.body.should.have.property('type').a('customer');
+            res.body.should.have.property('type').eql('customer');
             Object.keys(res.body).length.should.be.eql(4);
             done();
             });
@@ -48,26 +48,28 @@ describe('Endpoint tests', () => {
     // GET Appointment endpoint test
     it("GET /appointments", function (done) {
         chai.request(apiUrl)
-            .get(apiVersion + "api/appointments")
+            .get(apiVersion + "/appointments")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
-            res.body.length.should.be.eql(5)
+            // res.body.length.should.be.eql(1);
             done();
             });
     });
 
     it("GET one specific appointment", function (done) {
         chai.request(apiUrl)
-            .get(apiVersion + "api/appointments/6320cc9e74e18135acb030ef")
+            .get(apiVersion + "/appointments/6320cc9e74e18135acb030ef")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.have.property('_id').eql("6320cc9e74e18135acb030ef");
             res.body.should.have.property('barberid').eql("6320cbb34f34a584a07ab6d6");
             res.body.should.have.property('date').eql("2022-11-01");
-            res.body.should.have.property('customer').a('olistarri');
+            res.body.should.have.property('date').eql("10:30");
+            res.body.should.have.property('customer').eql('olistarri');
+            Object.keys(res.body).length.should.be.eql(5);
             done();
             });
     });
@@ -75,46 +77,52 @@ describe('Endpoint tests', () => {
     // GET Barber endpoint test
     it("GET /barbers", function (done) {
         chai.request(apiUrl)
-            .get(apiVersion + "api/barbers")
+            .get(apiVersion + "/barbers")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
-            res.body.length.should.be.eql(2)
+            // res.body.length.should.be.eql(2)
             done();
             });
     });
 
-    it("POST /users", function (done) {
+    it("GET one specific barber", function (done) {
         chai.request(apiUrl)
-            .post(apiVersion + "/users")
+            .get(apiVersion + "/barber/6320cc9e74e18135acb030ef")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
-            res.body.should.be.a('array');
+            res.body.should.have.property('_id').eql("6320cbb34f34a584a07ab6d6");
+            res.body.should.have.property('username').eql("barber1");
+            res.body.should.have.property('name').eql("Barber Big Boy");
+            Object.keys(res.body).length.should.be.eql(3);
             done();
             });
     });
 
-
-    it("POST /appointments", function (done) {
+    it("GET /services", function (done) {
         chai.request(apiUrl)
-            .post(apiVersion + "api/appointments")
+            .get(apiVersion + "/services")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
+            // res.body.length.should.be.eql(2)
             done();
             });
     });
 
-    it("POST /barbers", function (done) {
+    it("GET one specific service", function (done) {
         chai.request(apiUrl)
-            .post(apiVersion + "api/barbers")
+            .get(apiVersion + "/services/6320cc9e74e18135acb030ef")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
-            res.body.should.be.a('array');
+            res.body.should.have.property('_id').eql("6320cbb34f34a584a07ab6d6");
+            res.body.should.have.property('type').eql("barber1");
+            res.body.should.have.property('name').eql("Barber Big Boy");
+            Object.keys(res.body).length.should.be.eql(3);
             done();
             });
     });
