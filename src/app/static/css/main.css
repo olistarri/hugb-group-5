@@ -1,3 +1,40 @@
 #formbox {
     border: 3px solid black !important;
 }
+
+#navbar {
+    background-color: black !important;
+}
+
+.navbarletter {
+    color: white !important;
+    font-weight: bold;
+    font-size: large;
+}
+
+.nav {
+    margin-left: 10px;
+}
+
+.nav-item {
+    margin-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.nav-item:hover {
+    background-color: white;
+}
+
+.nav-item:hover .navbarletter {
+    color: black !important;
+}
+
+.navbar-box {
+    background-color: black;
+}
+
+.center-div {
+    display: flex;
+    justify-content: center;
+}
