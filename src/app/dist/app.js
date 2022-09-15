@@ -37,9 +37,22 @@ const client = new MongoClient(URI, { useNewUrlParser: true, useUnifiedTopology:
 client.connect();
 const Database = client.db("BarberShop");
 const apiVersion = "/api/v1";
+//get all users
 app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.query.username) {
+        //find all users whose name contains name 
+        const users = yield Database.collection("Users").findAll({ name: { $regex: req.query.username } }).toArray();
+        return res.send(users);
+    }
     const Users = yield Database.collection("Users").find({}).toArray();
     return res.status(200).json(Users);
+}));
+//get a single user
+app.get(apiVersion + '/users/:userid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.params.userid) {
+        const user = yield Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+        return res.json(user);
+    }
 }));
 app.get(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Appointments").find({}).toArray();
@@ -154,6 +167,24 @@ app.post(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0
     //create barber and insert into database, then return the result
     const Barbers = yield Database.collection("Barbers").insertOne(req.body);
     return res.status(200).json(Barbers);
+}));
+app.post(apiVersion + "/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //check if body is not null
+    if (req.body == null) {
+        return res.status(400).json({ message: 'Invalid body' });
+    }
+    //check if body has all the required fields
+    if (req.body.username == null || req.body.password == null) {
+        return res.status(400).json({ message: "Bad request. Request needs to contain username and password." });
+    }
+    //check if user exists
+    const user = yield Database.collection("Users").findOne({ username: req.body.username });
+    if (user.password == req.body.password) {
+        return res.status(200).json({ message: "Login successful." });
+    }
+    else {
+        return res.status(400).json({ message: "Login failed." });
+    }
 }));
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);

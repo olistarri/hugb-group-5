@@ -27,16 +27,25 @@ client.connect();
 const Database = client.db("BarberShop")
 const apiVersion = "/api/v1"
 
-app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
-  //check if userid
-  if (req.params.userid) {
-    const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
-    return  res.json(user);
+//get all users
+app.get(apiVersion + '/users', async (req: Request, res: Response) => {
+  if (req.query.name) {
+    //find all users whose name contains name 
+    const users = await Database.collection("Users").find({name: {$regex: req.query.name}}).toArray();
+    return res.send(users);
   }
+
   const Users:JSON = await Database.collection("Users").find({}).toArray();
   return res.status(200).json(Users);
 });
 
+//get a single user
+app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
+  if (req.params.userid) {
+    const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+    return  res.json(user);
+  }
+});
 
 
 
@@ -167,7 +176,19 @@ app.post(apiVersion+"/login", async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields
-    if (req.body.username == null || req.body.password == null) {"
+    if (req.body.username == null || req.body.password == null) {
+      return res.status(400).json({message: "Bad request. Request needs to contain username and password."});
+    }
+    //check if user exists
+    const user = await Database.collection("Users").findOne({username: req.body.username});
+    if (user.password == req.body.password) {
+      return res.status(200).json({message: "Login successful."});
+    }
+    else {
+      return res.status(400).json({message: "Login failed."});
+    }
+});
+
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
