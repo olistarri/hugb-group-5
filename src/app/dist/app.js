@@ -17,6 +17,17 @@ const path_1 = __importDefault(require("path"));
 const bodyParser = require('body-parser');
 const app = (0, express_1.default)();
 const port = 3000;
+const services = [
+    {
+        name: 'Haircut',
+    },
+    {
+        name: 'Shave',
+    },
+    {
+        name: 'Whiskey',
+    }
+];
 app.use(express_1.default.static(path_1.default.join(__dirname, '/../pages/')));
 app.use(bodyParser.json());
 const mongodb = require('mongodb');
@@ -30,13 +41,16 @@ app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, f
     const Users = yield Database.collection("Users").find({}).toArray();
     return res.status(200).json(Users);
 }));
-app.get(apiVersion + 'api/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Appointments").find({}).toArray();
     return res.status(200).json(Users);
 }));
-app.get(apiVersion + 'api/barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Barbers").find({}).toArray();
     return res.status(200).json(Users);
+}));
+app.get(apiVersion + '/services', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return res.status(200).json(services);
 }));
 //Post endpoint for users
 app.post(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -45,7 +59,7 @@ app.post(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, 
         return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields
-    if (req.body.name == null || req.body.username == null || req.body.email == null || req.body.password == null || req.body.phone == null) {
+    if (req.body.name == (null || "") || req.body.username == (null || "") || req.body.email == (null || "") || req.body.password == (null || "") || req.body.phone == (null || "")) {
         return res.status(400).json({ message: "Bad request. Request needs to contain name, username, email, password and phone." });
     }
     //check if user already exists
@@ -67,15 +81,15 @@ app.post(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, v
     if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.customer == null) {
         return res.status(400).json({ message: "Bad request. Request needs to contain barber, date, time and customer." });
     }
-    //check if barber is busy at this time and date.
-    const appointment = yield Database.collection("Appointments").findOne({ barber: req.body.barberid, date: req.body.date, time: req.body.time });
-    if (appointment != null) {
-        return res.status(400).json({ message: "barber already has an appointment at this date/time." });
-    }
     //check if barber exists using mongoDB id
     const barber = yield Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(req.body.barberid) });
     if (barber == null) {
         return res.status(400).json({ message: "barber does not exist." });
+    }
+    //check if barber is busy at this time and date.
+    const appointment = yield Database.collection("Appointments").findOne({ barber: req.body.barberid, date: req.body.date, time: req.body.time });
+    if (appointment != null) {
+        return res.status(400).json({ message: "barber already has an appointment at this date/time." });
     }
     //check if customer exists
     const customer = yield Database.collection("Users").findOne({ username: req.body.customer });
@@ -113,11 +127,6 @@ app.delete(apiVersion + '/appointments/:id', (req, res) => __awaiter(void 0, voi
     //delete appointment and return the result
     const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
     return res.status(200).json(Appointments);
-}));
-//get endpoint for barbers
-app.get(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const Barbers = yield Database.collection("Barbers").find({}).toArray();
-    return res.status(200).json(Barbers);
 }));
 //post endpoint for barbers, takes in a username and generates a barber
 app.post(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
