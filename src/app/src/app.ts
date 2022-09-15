@@ -27,16 +27,25 @@ client.connect();
 const Database = client.db("BarberShop")
 const apiVersion = "/api/v1"
 
-app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
-  //check if userid
-  if (req.params.userid != null) {
-    const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
-    return  res.json(user);
+//get all users
+app.get(apiVersion + '/users', async (req: Request, res: Response) => {
+  if (req.query.name) {
+    //find all users whose name contains name 
+    const users = await Database.collection("Users").find({name: {$regex: req.query.name}}).toArray();
+    return res.send(users);
   }
+
   const Users:JSON = await Database.collection("Users").find({}).toArray();
   return res.status(200).json(Users);
 });
 
+//get a single user
+app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
+  if (req.params.userid) {
+    const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+    return  res.json(user);
+  }
+});
 
 
 
