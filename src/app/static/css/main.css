@@ -1,9 +1,9 @@
 #formbox {
-    border: 3px solid black !important;
+    border: 3px solid rgba(13,110,253,255) !important;
 }
 
 #navbar {
-    background-color: black !important;
+    background-color: rgba(13,110,253,255) !important;
 }
 
 .navbarletter {
@@ -27,11 +27,11 @@
 }
 
 .nav-item:hover .navbarletter {
-    color: black !important;
+    color: rgba(13,110,253,255) !important;
 }
 
 .navbar-box {
-    background-color: black;
+    background-color: rgba(13,110,253,255);
 }
 
 .center-div {
