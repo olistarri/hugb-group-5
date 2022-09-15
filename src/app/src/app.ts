@@ -4,6 +4,18 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 
+const services = [
+  {
+    name: 'Haircut',
+  },
+  {
+    name: 'Shave',
+  },
+  {
+    name: 'Whiskey',
+  }
+];
+
 app.use(express.static(path.join(__dirname, '/../pages/')));
 app.use(bodyParser.json());
 
@@ -21,14 +33,18 @@ app.get(apiVersion + '/users', async (req: Request, res: Response) => {
 });
 
 
-app.get(apiVersion + 'api/appointments', async (req: Request, res: Response) => {
+app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Appointments").find({}).toArray();
   return res.status(200).json(Users);
 });
 
-app.get(apiVersion + 'api/barbers', async (req: Request, res: Response) => {
+app.get(apiVersion + '/barbers', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Barbers").find({}).toArray();
   return res.status(200).json(Users);
+});
+
+app.get(apiVersion + '/services', async (req: Request, res: Response) => {
+  return res.status(200).json(services);
 });
 
 //Post endpoint for users
@@ -38,7 +54,7 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid body' });
   }
   //check if body has all the required fields
-  if (req.body.name == null || req.body.username == null || req.body.email == null || req.body.password == null || req.body.phone == null) {
+  if (req.body.name == (null || "") || req.body.username == (null || "") || req.body.email == (null || "") || req.body.password == (null || "") || req.body.phone == (null || "")) {
     return res.status(400).json({message: "Bad request. Request needs to contain name, username, email, password and phone."});
   }
   //check if user already exists
@@ -108,12 +124,6 @@ app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response)
   //delete appointment and return the result
   const Appointments:JSON = await Database.collection("Appointments").deleteOne({_id: mongodb.ObjectId(req.params.id)});
   return res.status(200).json(Appointments);
-});
-
-//get endpoint for barbers
-app.get(apiVersion + '/barbers', async (req: Request, res: Response) => {
-  const Barbers:JSON = await Database.collection("Barbers").find({}).toArray();
-  return res.status(200).json(Barbers);
 });
 
 //post endpoint for barbers, takes in a username and generates a barber
