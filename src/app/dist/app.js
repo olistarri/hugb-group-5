@@ -37,7 +37,13 @@ const client = new MongoClient(URI, { useNewUrlParser: true, useUnifiedTopology:
 client.connect();
 const Database = client.db("BarberShop");
 const apiVersion = "/api/v1";
-app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get(apiVersion + '/users/:userid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //check if userid
+    if (req.params.userid != null) {
+        console.log("userid: " + req.params.userid);
+        const user = yield Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+        return res.json(user);
+    }
     const Users = yield Database.collection("Users").find({}).toArray();
     return res.status(200).json(Users);
 }));
@@ -155,6 +161,13 @@ app.post(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0
     const Barbers = yield Database.collection("Barbers").insertOne(req.body);
     return res.status(200).json(Barbers);
 }));
+// app.post(apiVersion+"/login", async (req: Request, res: Response) => {
+//   //check if body is not null
+//   if (req.body == null) {
+//     return res.status(400).json({ message: 'Invalid body' });
+//     }
+//     //check if body has all the required fields
+//     if (req.body.username == null || req.body.password == null) {"
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
 });
