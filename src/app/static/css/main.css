@@ -38,3 +38,29 @@
     display: flex;
     justify-content: center;
 }
+
+.timebox {
+    max-width: 500px;
+    width: 60%;
+    background-color: gainsboro;
+    display: flex;
+    flex-wrap: wrap;
+    border: 3px solid rgba(13,110,253,255);
+}
+
+.timebox-item {
+    text-align: center;
+    min-width: 80px;
+    width: fit-content;
+    color: white;
+    font-size: large;
+    margin: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: blue;
+}
+
+.timebox-item:hover {
+    background-color: rebeccapurple;
+    font-weight: bolder;
+}
