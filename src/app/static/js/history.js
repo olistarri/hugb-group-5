@@ -13,7 +13,6 @@ function history(){
             })
             .then(response => response.json())
             .then( data => {
-                console.log(data);
                 // response is a list of appointments
                 var main_div = document.getElementById("main-div");
                 for (var i = 0; i < data.length; i++) {

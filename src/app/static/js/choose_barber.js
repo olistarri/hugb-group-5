@@ -19,13 +19,11 @@
           </div>
 */
 function populate_barbers() {
-    console.log("populating barbers");
     fetch('/api/v1/barbers', {
         method: 'GET',
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         var main_div = document.getElementById("main-div");
         for (var i = 0; i < data.length; i++) {
             var barber = data[i];

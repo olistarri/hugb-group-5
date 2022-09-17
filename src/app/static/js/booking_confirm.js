@@ -32,7 +32,7 @@ element.appendChild(tag);
 
 // price
 var tag = document.createElement("p");
-// put period in price for over 1000
+// Format 1000 to 1.000 
 var price = service[1].toString();
 var price = price.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 var text = document.createTextNode(` Price: ${price} kr`);
