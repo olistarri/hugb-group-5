@@ -6,6 +6,17 @@
     background-color: rgba(13,110,253,255) !important;
 }
 
+.main-div {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.center-div {
+    display: flex;
+    justify-content: center;
+}
+
 .navbarletter {
     color: white !important;
     font-weight: bold;
@@ -32,11 +43,6 @@
 
 .navbar-box {
     background-color: rgba(13,110,253,255);
-}
-
-.center-div {
-    display: flex;
-    justify-content: center;
 }
 
 .timebox {

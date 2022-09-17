@@ -7,10 +7,12 @@ chai.use(chaiHttp);
 const apiVersion = "/api/v1"
 let apiUrl = "http://localhost:3000"
 
+var newUserID = "";
+var newAppointmentID = "";
+
 var barberObjectSuccess = {
-    name: "ónotað",
     username: "Sindri", // username þarf að vera það sama og af User
-   // name: "ónotað",
+    name: "ónotað",
 };
 var barberObjectFail = { // username already in use
     username: "barber1",
@@ -36,8 +38,8 @@ var userObjectFail = {
     phone: "asdf",
 };
 var userObjectFail1 = {
-    name: "",       //no name
-    username: "asdf", 
+    name: "asdf",       //no name
+    username: "", 
     email: "asdf",
     password: "asdf",
     phone: "asdf",
@@ -65,25 +67,31 @@ var appointmentObjectFail = {
 };
 var appointmentObjectFail1 = {  
     barberid: "6320cbb34f34a584a07ab6d6", //þegar appointment með id date og time
-    date: "2022-11-01", 
+    date: "2022-11-04", 
     time: "10:30",
     customer: "olistarri",  
 };
 var appointmentObjectFail2 = {  
     barberid: "6320cbb34f34a584a07ab6d6", 
-    date: "2022-11-02", 
+    date: "2022-11-05", 
     time: "12:00",
     customer: "asdf",  // customer ekki í users username
 };
+var appointmentObjectFail3 = {  
+    barberid: "", 
+    date: "2022-11-06", 
+    time: "12:00",
+    customer: "olistarri",
+}
 var servicesObjectSuccess = {
     barberid: "123",   //id vitlaust
-    date: "2022-11-01",
+    date: "2022-11-07",
     time: "11:00",
     customer: "olistarri"  
 };
 var servicesObject1 = {
     barberid: "6320cbb34f34a584a07ab6d6",
-    date: "2022-11-01",
+    date: "2022-11-08",
     time: "11:00",
     customer: "123"  //ekki til
 };
@@ -104,10 +112,6 @@ var servicesObjectSuccess2 = {
 
 
 describe('Endpoint tests', () => {
-    //###########################
-    //The beforeEach function makes sure that before each test, 
-    //there are exactly two tunes and two genres.
-    //###########################
     beforeEach((done) => {
         //server.resetState();
         done();
@@ -115,45 +119,83 @@ describe('Endpoint tests', () => {
     it("POST /users", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
-            //.set("Content-type", "application/json")
-            .send({userObjectSuccess})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(userObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(200);
-                //res.should.be.json;
-                //res.body.should.be.a('array');
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('insertedId');
+                newUserID = res.body.insertedId;
                 done();
             });
     });
     it("POST /users username already exists fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
-            //.set("Content-type", "application/json")
-            .send({userObjectFail})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(userObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(400);
-                //res.should.be.json;
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');//.eql('No user with this username.');
+                res.body.message.should.be.eql('Username already exists.')
+                
                 done();
             });
     });
+    it("DELETE /users success", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/users/" + newUserID)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('deletedCount').eql(1);
+                done();
+            });
+    })
+
+    it("DELETE /users no deletion", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/users/" + newUserID)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('deletedCount').eql(0);
+                done();
+            });
+    })
     it("POST /users no name fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
-            //.set("Content-type", "application/json")
-            .send({userObjectFail1})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(userObjectFail1))
             .end((err, res) => {
                 res.should.have.status(400);
-                //res.should.be.json;
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Bad request. Request needs to contain name, username, email, password and phone, cannot be empty.')
                 done();
             });
     });
     it("POST /users no body fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
-            //.set("Content-type", "application/json")
-            .send({})
+            .set("Content-type", "application/json")
+            .send({}) // oviss
             .end((err, res) => {
                 res.should.have.status(400);
-                //res.should.be.json;
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Invalid body')
                 done();
             });
     });
@@ -162,57 +204,98 @@ describe('Endpoint tests', () => {
     it("POST /appointments", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
-            //.set("Content-type", "application/json")
-            .send({appointmentObjectSuccess})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(200);
                 res.should.be.json;
-                //res.body.should.be.a('array');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('insertedId');
+                newAppointmentID = res.body.insertedId;
                 done();
+                
             });
     });
+
+    it("DELETE /appointments/:id", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/appointments/" + newAppointmentID)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('deletedCount').eql(1);
+                done();
+            });
+    })
+
     it("POST /appointments no body fail", function (done) { 
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
-            //.set("Content-type", "application/json")
+            .set("Content-type", "application/json")
             .send({})
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Invalid body');
                 done();
             });
     });
     it("POST /appointments barber id fail ", function (done) { // Enginn með þetta barber ID
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
-            //.set("Content-type", "application/json")
-            .send({appointmentObjectFail})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail))
             .end((err, res) => {
                 res.should.have.status(400);
-                //res.should.be.json;
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('barber does not exist.');
                 done();
             });
     });
     it("POST /appointments appointment at same time fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
-            //.set("Content-type", "application/json")
-            .send({appointmentObjectFail1})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail1))
             .end((err, res) => {
                 res.should.have.status(400);
-                res.should.be.json;
-                //res.body.should.be.a('array');
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('barber already has an appointment at this date/time.');
                 done();
             });
     });
     it("POST /appointments customers username doesn't exist fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
-            //.set("Content-type", "application/json")
-            .send({appointmentObjectFail2})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail2))
             .end((err, res) => {
                 res.should.have.status(400);
-                //res.should.be.json;
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('customer does not exist.');
+                done();
+            });
+    });
+    it("POST /appointments empty barber id fail", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/appointments")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail3))
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Bad request. Request needs to contain barber, date, time and customer.');
                 done();
             });
     });
@@ -221,11 +304,14 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/barbers")
             .set("Content-type", "application/json")
-            .send({barberObjectSuccess})
+            .send(JSON.stringify(barberObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(200);
                 res.should.be.json;
-                res.body.should.be.a('array');
+                res.body.should.be.a('object');
+                //res.body.should.have.property('message');
+                //res.body.message.should.be.eql('');
+                //res.body.message.should.have.property()
                 done();
             });
     });
@@ -233,22 +319,28 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/barbers")
             //.set("Content-type", "application/json")
-            .send({})
+            .send(null)
             .end((err, res) => {
                 res.should.have.status(400);
-                //res.should.be.json;
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');//.eql('Invalid body');
+                res.body.message.should.be.eql("Invalid body")
                 done();
             });
     });
     it("POST /barbers username fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/barbers")
-            //.set("Content-type", "application/json")
-            .send({barberObjectFail})
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(barberObjectFail))
             .end((err, res) => {
                 res.should.have.status(400);
-               // res.should.be.json;
-                //res.body.should.have.property('message').eql("barber already exists.");
+                res.should.be.json;
+               res.body.should.be.a('object');
+                res.body.should.have.property('message');//.eql("barber already exists.");
+                //res.body.message.should.be.eql("barber already exists.");
+                res.body.message.should.be.eql("Bad request. Request needs to contain a username.")
                 done();
             });
     });
@@ -256,11 +348,14 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/barbers")
             //.set("Content-type", "application/json")
-            .send({barberObjectFail1})
+            .send(JSON.stringify(barberObjectFail1))
             .end((err, res) => {
                 res.should.have.status(400);
-                //res.should.be.json;
-                //res.body.should.have.property('message').eql("barber already exists.");
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                //res.body.message.should.be.eql("No user with this username.")
+                res.body.message.should.be.eql('Bad request. Request needs to contain a username.')
                 done();
             });
     });
