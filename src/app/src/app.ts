@@ -219,7 +219,7 @@ app.post(apiVersion+"/login", async (req: Request, res: Response) => {
     }
     //check if user exists
     const user = await Database.collection("Users").findOne({username: req.body.username});
-    
+
     // use bcrypt to compare the password
     if (user == null || !bcrypt.compareSync(req.body.password, user.password)) {
       return res.status(400).json({message: "Invalid username or password."});
@@ -227,7 +227,7 @@ app.post(apiVersion+"/login", async (req: Request, res: Response) => {
     else
     {
       //create a token for the user
-      const token = jwt.sign({username: user.username}, JWT_SECRET);
+      const token = jwt.sign({username: user.username, userid: user._id}, JWT_SECRET, {expiresIn: "30d"});
       return res.status(200).json({token: token});
     }
 
