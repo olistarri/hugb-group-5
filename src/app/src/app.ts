@@ -12,6 +12,7 @@ const services = [
     name: 'Shave',
   },
   {
+
     name: 'Whiskey',
   }
 ];
@@ -48,15 +49,32 @@ app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
 });
 
 
-
+//Get all appointments
 app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Appointments").find({}).toArray();
   return res.status(200).json(Users);
 });
+//get a single appointment
+app.get(apiVersion + '/appointments/:appointmentid', async (req: Request, res: Response) => {
+  if (req.params.appointmentid) {
+    const appointment = await Database.collection("Appointments").findOne({ _id: mongodb.ObjectId(req.params.appointmentid) });
+    return  res.json(appointment);
+  }
+});
+
+
 
 app.get(apiVersion + '/barbers', async (req: Request, res: Response) => {
   const Users:JSON = await Database.collection("Barbers").find({}).toArray();
   return res.status(200).json(Users);
+});
+
+//get a single barber
+app.get(apiVersion + '/barbers/:barberid', async (req: Request, res: Response) => {
+  if (req.params.barberid) {
+    const barber = await Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(req.params.barberid) });
+    return  res.status(200).json(barber);
+  }
 });
 
 app.get(apiVersion + '/services', async (req: Request, res: Response) => {
@@ -66,13 +84,19 @@ app.get(apiVersion + '/services', async (req: Request, res: Response) => {
 //Post endpoint for users
 app.post(apiVersion + '/users', async (req: Request, res: Response) => {
   //check if body is not null
-  if (req.body == null) {
+  //empty json object
+  if (req.body == null || Object.keys(req.body).length === 0) {
     return res.status(400).json({ message: 'Invalid body' });
   }
   //check if body has all the required fields
-  if (req.body.name == (null || "") || req.body.username == (null || "") || req.body.email == (null || "") || req.body.password == (null || "") || req.body.phone == (null || "")) {
+  if (req.body.name == null || req.body.username == null || req.body.email == null  || req.body.password == null || req.body.phone == null) {
     return res.status(400).json({message: "Bad request. Request needs to contain name, username, email, password and phone."});
   }
+  //Check if fields are empty
+  if (req.body.name == "" || req.body.username == "" || req.body.email == ""  || req.body.password == "" || req.body.phone == "") {
+    return res.status(400).json({message: "Bad request. Request needs to contain name, username, email, password and phone, cannot be empty."});
+  }
+
   //check if user already exists
   const user = await Database.collection("Users").findOne({username: req.body.username});
   if (user != null) {
@@ -86,7 +110,7 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
 //Post endpoint for appointments
 app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
   //check if body is not null
-  if (req.body == null) {
+  if (req.body == null || Object.keys(req.body).length === 0) {
     return res.status(400).json({ message: 'Invalid body' });
   }
   //check if body has all the required fields
@@ -145,7 +169,7 @@ app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response)
 //post endpoint for barbers, takes in a username and generates a barber
 app.post(apiVersion + '/barbers', async (req: Request, res: Response) => {
   //check if body is not null
-  if (req.body == null) {
+  if (req.body == null || Object.keys(req.body).length === 0) {
     return res.status(400).json({ message: 'Invalid body' });
   }
   //check if body has all the required fields, mongo will create an id for us
@@ -188,6 +212,37 @@ app.post(apiVersion+"/login", async (req: Request, res: Response) => {
       return res.status(400).json({message: "Login failed."});
     }
 });
+
+app.delete(apiVersion + '/barbers/:id', async (req: Request, res: Response) => {
+  //check if id is not null
+  if (req.params.id == null) {
+    return res.status(400).json({ message: 'Invalid id' });
+  }
+  //delete barber and return the result
+  const Barbers:JSON = await Database.collection("Barbers").deleteOne({_id: mongodb.ObjectId(req.params.id)});
+  return res.status(200).json(Barbers);
+});
+
+app.delete(apiVersion + '/users/:id', async (req: Request, res: Response) => {
+  //check if id is not null
+  if (req.params.id == null) {
+    return res.status(400).json({ message: 'Invalid id' });
+  }
+  //delete user and return the result
+  const Users:JSON = await Database.collection("Users").deleteOne({_id: mongodb.ObjectId(req.params.id)});
+  return res.status(200).json(Users);
+});
+
+app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response) => {
+  //check if id is not null
+  if (req.params.id == null) {
+    return res.status(400).json({ message: 'Invalid id' });
+  }
+  //delete appointment and return the result
+  const Appointments:JSON = await Database.collection("Appointments").deleteOne({_id: mongodb.ObjectId(req.params.id)});
+  return res.status(200).json(Appointments);
+});
+
 
 
 app.listen(port, () => {

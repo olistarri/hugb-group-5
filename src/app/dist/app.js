@@ -39,9 +39,9 @@ const Database = client.db("BarberShop");
 const apiVersion = "/api/v1";
 //get all users
 app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.query.username) {
+    if (req.query.name) {
         //find all users whose name contains name 
-        const users = yield Database.collection("Users").findAll({ name: { $regex: req.query.username } }).toArray();
+        const users = yield Database.collection("Users").find({ name: { $regex: req.query.name } }).toArray();
         return res.send(users);
     }
     const Users = yield Database.collection("Users").find({}).toArray();
@@ -54,13 +54,28 @@ app.get(apiVersion + '/users/:userid', (req, res) => __awaiter(void 0, void 0, v
         return res.json(user);
     }
 }));
+//Get all appointments
 app.get(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Appointments").find({}).toArray();
     return res.status(200).json(Users);
 }));
+//get a single appointment
+app.get(apiVersion + '/appointments/:appointmentid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.params.appointmentid) {
+        const appointment = yield Database.collection("Appointments").findOne({ _id: mongodb.ObjectId(req.params.appointmentid) });
+        return res.json(appointment);
+    }
+}));
 app.get(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const Users = yield Database.collection("Barbers").find({}).toArray();
     return res.status(200).json(Users);
+}));
+//get a single barber
+app.get(apiVersion + '/barbers/:barberid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.params.barberid) {
+        const barber = yield Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(req.params.barberid) });
+        return res.status(200).json(barber);
+    }
 }));
 app.get(apiVersion + '/services', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.status(200).json(services);
@@ -68,12 +83,17 @@ app.get(apiVersion + '/services', (req, res) => __awaiter(void 0, void 0, void 0
 //Post endpoint for users
 app.post(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //check if body is not null
-    if (req.body == null) {
+    //empty json object
+    if (req.body == null || Object.keys(req.body).length === 0) {
         return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields
-    if (req.body.name == (null || "") || req.body.username == (null || "") || req.body.email == (null || "") || req.body.password == (null || "") || req.body.phone == (null || "")) {
+    if (req.body.name == null || req.body.username == null || req.body.email == null || req.body.password == null || req.body.phone == null) {
         return res.status(400).json({ message: "Bad request. Request needs to contain name, username, email, password and phone." });
+    }
+    //Check if fields are empty
+    if (req.body.name == "" || req.body.username == "" || req.body.email == "" || req.body.password == "" || req.body.phone == "") {
+        return res.status(400).json({ message: "Bad request. Request needs to contain name, username, email, password and phone, cannot be empty." });
     }
     //check if user already exists
     const user = yield Database.collection("Users").findOne({ username: req.body.username });
@@ -87,7 +107,7 @@ app.post(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, 
 //Post endpoint for appointments
 app.post(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //check if body is not null
-    if (req.body == null) {
+    if (req.body == null || Object.keys(req.body).length === 0) {
         return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields
@@ -144,7 +164,7 @@ app.delete(apiVersion + '/appointments/:id', (req, res) => __awaiter(void 0, voi
 //post endpoint for barbers, takes in a username and generates a barber
 app.post(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //check if body is not null
-    if (req.body == null) {
+    if (req.body == null || Object.keys(req.body).length === 0) {
         return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields, mongo will create an id for us

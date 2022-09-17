@@ -67,7 +67,7 @@ describe('Endpoint tests', () => {
             res.body.should.have.property('_id').eql("6320cc9e74e18135acb030ef");
             res.body.should.have.property('barberid').eql("6320cbb34f34a584a07ab6d6");
             res.body.should.have.property('date').eql("2022-11-01");
-            res.body.should.have.property('date').eql("10:30");
+            res.body.should.have.property('time').eql("10:30");
             res.body.should.have.property('customer').eql('olistarri');
             Object.keys(res.body).length.should.be.eql(5);
             done();
@@ -89,13 +89,13 @@ describe('Endpoint tests', () => {
 
     it("GET one specific barber", function (done) {
         chai.request(apiUrl)
-            .get(apiVersion + "/barber/6320cc9e74e18135acb030ef")
+            .get(apiVersion + "/barbers/6320cbb34f34a584a07ab6d6")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.have.property('_id').eql("6320cbb34f34a584a07ab6d6");
             res.body.should.have.property('username').eql("barber1");
-            res.body.should.have.property('name').eql("Barber Big Boy");
+            res.body.should.have.property('name').eql("Big Barber Boy");
             Object.keys(res.body).length.should.be.eql(3);
             done();
             });
