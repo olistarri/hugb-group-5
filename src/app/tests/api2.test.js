@@ -7,6 +7,9 @@ chai.use(chaiHttp);
 const apiVersion = "/api/v1"
 let apiUrl = "http://localhost:3000"
 
+var newUserID = "";
+var newAppointmentID = "";
+
 var barberObjectSuccess = {
     username: "Sindri", // username þarf að vera það sama og af User
     name: "ónotað",
@@ -117,11 +120,14 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
             .set("Content-type", "application/json")
-            .send({userObjectSuccess})
+            .send(JSON.stringify(userObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('insertedId');
+                newUserID = res.body.insertedId;
                 done();
             });
     });
@@ -129,7 +135,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
             .set("Content-type", "application/json")
-            .send({userObjectFail})
+            .send(JSON.stringify(userObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
@@ -140,17 +146,42 @@ describe('Endpoint tests', () => {
                 done();
             });
     });
+    it("DELETE /users success", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/users/" + newUserID)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('deletedCount').eql(1);
+                done();
+            });
+    })
+
+    it("DELETE /users no deletion", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/users/" + newUserID)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('deletedCount').eql(0);
+                done();
+            });
+    })
     it("POST /users no name fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
             .set("Content-type", "application/json")
-            .send({userObjectFail1})
+            .send(JSON.stringify(userObjectFail1))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
-                res.body.message.should.be.eql('Bad request. Request needs to contain name, username, email, password and phone.')
+                res.body.message.should.be.eql('Bad request. Request needs to contain name, username, email, password and phone, cannot be empty.')
                 done();
             });
     });
@@ -174,14 +205,30 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
             .set("Content-type", "application/json")
-            .send({appointmentObjectSuccess})
+            .send(JSON.stringify(appointmentObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(200);
                 res.should.be.json;
-                res.body.should.be.a('array');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('insertedId');
+                newAppointmentID = res.body.insertedId;
                 done();
             });
     });
+
+    it("DELETE /appointments/:id", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/appointments/" + newAppointmentID)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('deletedCount').eql(1);
+                done();
+            });
+    })
+
     it("POST /appointments no body fail", function (done) { 
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
@@ -200,7 +247,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
             .set("Content-type", "application/json")
-            .send({appointmentObjectFail})
+            .send(JSON.stringify(appointmentObjectFail))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
@@ -214,7 +261,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
             .set("Content-type", "application/json")
-            .send({appointmentObjectFail1})
+            .send(JSON.stringify(appointmentObjectFail1))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.body.should.be.a('object');
@@ -227,7 +274,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
             .set("Content-type", "application/json")
-            .send({appointmentObjectFail2})
+            .send(JSON.stringify(appointmentObjectFail2))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
@@ -241,7 +288,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
             .set("Content-type", "application/json")
-            .send({appointmentObjectFail3})
+            .send(JSON.stringify(appointmentObjectFail3))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
@@ -256,7 +303,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/barbers")
             .set("Content-type", "application/json")
-            .send({barberObjectSuccess})
+            .send(JSON.stringify(barberObjectSuccess))
             .end((err, res) => {
                 res.should.have.status(200);
                 res.should.be.json;
@@ -285,7 +332,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/barbers")
             .set("Content-type", "application/json")
-            .send({barberObjectFail})
+            .send(JSON.stringify(barberObjectFail))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
@@ -300,7 +347,7 @@ describe('Endpoint tests', () => {
         chai.request(apiUrl)
             .post(apiVersion + "/barbers")
             //.set("Content-type", "application/json")
-            .send({barberObjectFail1})
+            .send(JSON.stringify(barberObjectFail1))
             .end((err, res) => {
                 res.should.have.status(400);
                 res.should.be.json;
