@@ -74,10 +74,6 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
     const appointments = await Database.collection("Appointments").find(query).toArray();
     return res.status(200).send(appointments);
   }
-  if (req.query.barberid){
-    const appointments = await Database.collection("Appointments").find({barberid: req.query.barberid}).toArray();
-    return res.status(200).send(appointments);
-  }
   const Users:JSON = await Database.collection("Appointments").find({}).toArray();
   return res.status(200).json(Users);
 });
@@ -147,8 +143,8 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid body' });
   }
   //check if body has all the required fields
-  if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.customer == null) {
-    return res.status(400).json({message: "Bad request. Request needs to contain barber, date, time and customer."});
+  if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.userid == null) {
+    return res.status(400).json({message: "Bad request. Request needs to contain barber, date, time and userid."});
   }
   //check if barber exists using mongoDB id
   //check if id is valid id
@@ -166,9 +162,9 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
     return res.status(400).json({message: "barber already has an appointment at this date/time."});
   }
   //check if customer exists
-  const customer = await Database.collection("Users").findOne({username: req.body.customer});
-  if (customer == null) {
-    return res.status(400).json({message: "customer does not exist."});
+  const user = await Database.collection("Users").findOne({username: req.body.userid});
+  if (user == null) {
+    return res.status(400).json({message: "user does not exist."});
   }
   //check formatting of date and time
   if (!req.body.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
