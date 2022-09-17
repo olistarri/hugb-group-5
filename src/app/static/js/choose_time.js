@@ -17,5 +17,28 @@ function refresh_event_listeners() {
 
 function choose_time_main(time) {
     sessionStorage.setItem('time', JSON.stringify([datesSelection.value, time]))
-    window.location.href = 'booking_confirm.html';
+    data = {
+        "date": datesSelection.value,
+        "time": time,
+        "userid": localStorage.getItem("userid"),
+        "barberid": sessionStorage.getItem("barber"),
+        "service": sessionStorage.getItem("service")
+
+    }
+    console.log(data);
+    fetch('/api/v1/appointments', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'},
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data["message"]) {
+            alert(data["message"]);
+        }
+        else {
+            window.location.href = 'booking_confirm.html';
+        }
+    });
 }

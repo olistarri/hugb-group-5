@@ -174,8 +174,8 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
   if (appointment != null) {
     return res.status(400).json({message: "barber already has an appointment at this date/time."});
   }
-  //check if customer exists
-  const user = await Database.collection("Users").findOne({username: req.body.userid});
+  //check if customer exists using mongoDB id
+  const user = await Database.collection("Users").findOne({_id: mongodb.ObjectId(req.body.userid)});
   if (user == null) {
     return res.status(400).json({message: "user does not exist."});
   }
