@@ -69,10 +69,11 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
   req.query.barberid ? query = {...query, barberid: req.query.barberid} : null;
   if (Object.keys(query).length != 0) {
     const appointments = await Database.collection("Appointments").find(query).toArray();
+    return res.status(200).send(appointments);
   }
   if (req.query.barberid){
     const appointments = await Database.collection("Appointments").find({barberid: req.query.barberid}).toArray();
-    return res.send(appointments);
+    return res.status(200).send(appointments);
   }
   const Users:JSON = await Database.collection("Appointments").find({}).toArray();
   return res.status(200).json(Users);
@@ -130,7 +131,9 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
   const hash = bcrypt.hashSync(req.body.password, salt);
   req.body.password = hash;
   //create user and insert into database, then return the result
-  const Users:JSON = await Database.collection("Users").insertOne(req.body);
+  const Users = await Database.collection("Users").insertOne(req.body);
+  //add line to json
+  Users.token = jwt.sign({username: user.username, userid: user._id}, JWT_SECRET, {expiresIn: "30d"});
   return res.status(200).json(Users);
 });
 
