@@ -185,7 +185,8 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
     return res.status(400).json({message: "Appointments can only be booked in 30 minute intervals."}); //maybe change this to 15 minute intervals if appointments are 45 mins.. 
   }
   //create appointment and insert into database, then return the result
-  const Appointments:JSON = await Database.collection("Appointments").insertOne(req.body);
+  const Appointments = await Database.collection("Appointments").insertOne(req.body);
+  Appointments.barbername = barber.name;
   return res.status(200).json(Appointments);
 });
 
