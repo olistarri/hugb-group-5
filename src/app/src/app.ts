@@ -74,10 +74,6 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
     const appointments = await Database.collection("Appointments").find(query).toArray();
     return res.status(200).send(appointments);
   }
-  if (req.query.barberid){
-    const appointments = await Database.collection("Appointments").find({barberid: req.query.barberid}).toArray();
-    return res.status(200).send(appointments);
-  }
   const Users:JSON = await Database.collection("Appointments").find({}).toArray();
   return res.status(200).json(Users);
 });
