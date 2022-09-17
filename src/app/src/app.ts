@@ -133,12 +133,17 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
     return res.status(400).json({message: "Bad request. Request needs to contain barber, date, time and customer."});
   }
   //check if barber exists using mongoDB id
+  //check if id is valid id
+  if (!mongodb.ObjectId.isValid(req.body.barberid)) {
+    return res.status(400).json({message: "barber does not exist."});
+  }
   const barber = await Database.collection("Barbers").findOne({_id: mongodb.ObjectId(req.body.barberid)});
   if (barber == null) {
     return res.status(400).json({message: "barber does not exist."});
   }
+
   //check if barber is busy at this time and date.
-  const appointment = await Database.collection("Appointments").findOne({barber: req.body.barberid, date: req.body.date, time: req.body.time});
+  const appointment = await Database.collection("Appointments").findOne({barberid: req.body.barberid, date: req.body.date, time: req.body.time});
   if (appointment != null) {
     return res.status(400).json({message: "barber already has an appointment at this date/time."});
   }
@@ -182,14 +187,14 @@ app.post(apiVersion + '/barbers', async (req: Request, res: Response) => {
   }
   //check if a user with this username exists. All barbers need to have a username, maybe call this method when a "barber" user is created?
   const user = await Database.collection("Users").findOne({username: req.body.username});
-  if (user != null) {
-    return res.status(400).json({message: "Username already exists."});
+  if (user == null) {
+    return res.status(400).json({message: "No user with this username"});
   }
   //check if barber already exists (may cause problems, this check is not really needed.causes problems if two barbers share the same name,
   //however, this is very unlikely in our system.)
-  const barber = await Database.collection("Barbers").findOne({name: req.body.name});
+  const barber = await Database.collection("Barbers").findOne({username: req.body.username});
   if (barber != null) {
-    return res.status(400).json({message: "barber already exists."});
+    return res.status(400).json({message: "This user is already a barber."});
   }
   //add the name of the user to the barber object
   req.body.name = user.name;

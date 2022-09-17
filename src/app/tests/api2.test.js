@@ -9,18 +9,18 @@ let apiUrl = "http://localhost:3000"
 
 var newUserID = "";
 var newAppointmentID = "";
+var newBarberID = "";
 
 var barberObjectSuccess = {
     username: "Sindri", // username þarf að vera það sama og af User
-    name: "ónotað",
 };
-var barberObjectFail = { // username already in use
-    username: "barber1",
-    name: "ónotað",
+
+var barberObjectFail = {
+    something:"Some other thing" // No username
 };
+
 var barberObjectFail1 = { // name already in use
     username: "barbie",
-    name: "Big Barber Boy",
 };
 
 var userObjectSuccess = {
@@ -54,35 +54,34 @@ var userObjectFail2 = {
 
 
 var appointmentObjectSuccess = {  
-    barberid: "6320cbb34f34a584a07ab6d6", //id þarf að vera til
+    barberid: "6325eb956aec9d26d37d7723", //id þarf að vera til
     date: "2022-11-02", //eitt test er fail þegar efstu 3 eru þegar í kerfinu saman
     time: "12:00",
     customer: "olistarri",  //þarf að vera til í User
 };
 var appointmentObjectFail = {  
     barberid: "asdf", // barber ekki til
-    date: "2022-11-02", 
+    date: "2022-11-10", 
     time: "12:00",
     customer: "olistarri",
 };
 var appointmentObjectFail1 = {  
-    barberid: "6320cbb34f34a584a07ab6d6", //þegar appointment með id date og time
+    barberid: "6325eb956aec9d26d37d7723", //þegar appointment með id date og time
     date: "2022-11-04", 
     time: "10:30",
     customer: "olistarri",  
 };
 var appointmentObjectFail2 = {  
-    barberid: "6320cbb34f34a584a07ab6d6", 
+    barberid: "6325eb956aec9d26d37d7723", 
     date: "2022-11-05", 
     time: "12:00",
     customer: "asdf",  // customer ekki í users username
 };
-var appointmentObjectFail3 = {  
-    barberid: "", 
+var appointmentObjectFail3 = {
     date: "2022-11-06", 
     time: "12:00",
     customer: "olistarri",
-}
+};
 var servicesObjectSuccess = {
     barberid: "123",   //id vitlaust
     date: "2022-11-07",
@@ -90,20 +89,20 @@ var servicesObjectSuccess = {
     customer: "olistarri"  
 };
 var servicesObject1 = {
-    barberid: "6320cbb34f34a584a07ab6d6",
+    barberid: "6325eb956aec9d26d37d7723",
     date: "2022-11-08",
     time: "11:00",
     customer: "123"  //ekki til
 };
 
 var servicesObjectSuccess2 = {
-    barberid: "6320cbb34f34a584a07ab6d6", // 3 efstu þegar í appointments
-    date: "2022-11-01",
+    barberid: "6325eb956aec9d26d37d7723", // 3 efstu þegar í appointments
+    date: "2022-11-12",
     time: "10:30",
     customer: "olistarri"  
 };
 var servicesObjectSuccess2 = {
-    barberid: "6320cbb34f34a584a07ab6d6", 
+    barberid: "6325eb956aec9d26d37d7723", 
     date: "2022", // ekki rétt
     time: "10", // ekki rétt
     customer: "olistarri"  
@@ -309,9 +308,38 @@ describe('Endpoint tests', () => {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.be.a('object');
-                //res.body.should.have.property('message');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('insertedId');
+                newBarberID = res.body.insertedId;
+                done();
+            });
+    });
+
+    it("POST /barbers again - failes", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/barbers")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(barberObjectSuccess))
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message').eql('This user is already a barber.');
                 //res.body.message.should.be.eql('');
                 //res.body.message.should.have.property()
+                done();
+            });
+    });
+
+    it("DELETE /barbers/:id", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/barbers/" + newBarberID)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('acknowledged').eql(true);
+                res.body.should.have.property('deletedCount').eql(1);
                 done();
             });
     });
@@ -341,21 +369,6 @@ describe('Endpoint tests', () => {
                 res.body.should.have.property('message');//.eql("barber already exists.");
                 //res.body.message.should.be.eql("barber already exists.");
                 res.body.message.should.be.eql("Bad request. Request needs to contain a username.")
-                done();
-            });
-    });
-    it("POST /barbers name fail", function (done) {
-        chai.request(apiUrl)
-            .post(apiVersion + "/barbers")
-            //.set("Content-type", "application/json")
-            .send(JSON.stringify(barberObjectFail1))
-            .end((err, res) => {
-                res.should.have.status(400);
-                res.should.be.json;
-                res.body.should.be.a('object');
-                res.body.should.have.property('message');
-                //res.body.message.should.be.eql("No user with this username.")
-                res.body.message.should.be.eql('Bad request. Request needs to contain a username.')
                 done();
             });
     });
