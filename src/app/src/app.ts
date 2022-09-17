@@ -169,17 +169,6 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
   return res.status(200).json(Appointments);
 });
 
-//delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
-app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response) => {
-  //check if id is not null
-  if (req.params.id == null) {
-    return res.status(400).json({ message: 'Invalid id' });
-  }
-  //delete appointment and return the result
-  const Appointments:JSON = await Database.collection("Appointments").deleteOne({_id: mongodb.ObjectId(req.params.id)});
-  return res.status(200).json(Appointments);
-});
-
 //post endpoint for barbers, takes in a username and generates a barber
 app.post(apiVersion + '/barbers', async (req: Request, res: Response) => {
   //check if body is not null
@@ -254,6 +243,7 @@ app.delete(apiVersion + '/users/:id', async (req: Request, res: Response) => {
   return res.status(200).json(Users);
 });
 
+//delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
 app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response) => {
   //check if id is not null
   if (req.params.id == null) {
