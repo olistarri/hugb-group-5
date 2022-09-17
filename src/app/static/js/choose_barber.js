@@ -70,6 +70,6 @@ function onbuttonclick(idname) {
     var name = idname.split("-")[1];
     sessionStorage.setItem("barber", id);
     sessionStorage.setItem("barbername",name);
-    window.location.href = "/choose_service.html";
+    window.location.href = "/choose_time.html";
 }
 window.onload = populate_barbers;
