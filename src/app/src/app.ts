@@ -62,8 +62,16 @@ app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
 
 //Get all appointments
 app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
-  if (req.query.userid){
-    const appointments = await Database.collection("Appointments").find({userid: req.query.userid}).toArray();
+  let query = {};
+  //append query params to query
+  req.query.userid ? query = {...query, userid: req.query.userid} : null;
+  req.query.date ? query = {...query, date: req.query.date} : null;
+  req.query.barberid ? query = {...query, barberid: req.query.barberid} : null;
+  if (Object.keys(query).length != 0) {
+    const appointments = await Database.collection("Appointments").find(query).toArray();
+  }
+  if (req.query.barberid){
+    const appointments = await Database.collection("Appointments").find({barberid: req.query.barberid}).toArray();
     return res.send(appointments);
   }
   const Users:JSON = await Database.collection("Appointments").find({}).toArray();
