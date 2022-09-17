@@ -28,15 +28,16 @@ describe('Endpoint tests', () => {
 
     it("GET one specific user", function (done) {
         chai.request(apiUrl)
-            .get(apiVersion + "/users/6320b455e9fbd820b1325bbd")
+            .get(apiVersion + "/users/6325d8ce4584f7a57192113b")
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
-            res.body.should.have.property('_id').eql("6320b455e9fbd820b1325bbd");
+            res.body.should.have.property('_id').eql("6325d8ce4584f7a57192113b");
             res.body.should.have.property('username').eql("Sindri");
-            res.body.should.have.property('password').eql("sindri12");
-            res.body.should.have.property('type').eql('customer');
-            Object.keys(res.body).length.should.be.eql(4);
+            res.body.should.have.property('email').eql("sindri@sindri.is");
+            res.body.should.have.property('name').eql("Sindri Thor");
+            res.body.should.have.property('phone').eql("5812345");
+            Object.keys(res.body).length.should.be.eql(5);
             done();
             });
     });
