@@ -8,10 +8,6 @@ const apiVersion = "/api/v1"
 let apiUrl = "http://localhost:3000"
 
 describe('Endpoint tests', () => {
-    //###########################
-    //The beforeEach function makes sure that before each test, 
-    //there are exactly two tunes and two genres.
-    //###########################
     beforeEach((done) => {
         // server.resetState();
         done();
