@@ -1,5 +1,4 @@
-
-var buttons = {'haircut-book-button':['Haircut', 5999] ,'colouring-book-button': ['Colouring', 10999], 'shave-book-button': ['Shave', 2999]};
+var buttons = {'Andri-button':['Andri'] ,'Sindri-button': ['Sindri'], 'Kari-button': ['Kári']};
 var keys = Object.keys(buttons);
 
 for (var i = 0; i < keys.length; i++) {
@@ -9,7 +8,8 @@ for (var i = 0; i < keys.length; i++) {
 }
 
 function choose_service_main(key) {
+    return_key = key;
     retArr = buttons[key];
-    sessionStorage.setItem('service', JSON.stringify(retArr));
-    window.location.href = 'choose_barber.html';
+    sessionStorage.setItem('barber', JSON.stringify(retArr))
+    window.location.href = 'choose_time.html'
 }
