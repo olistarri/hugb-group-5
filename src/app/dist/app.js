@@ -15,20 +15,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const app = (0, express_1.default)();
+const saltRounds = 10;
 const port = 3000;
+const JWT_SECRET = "VerySecretStringDoNotShare";
 const services = [
     {
         name: 'Haircut',
+        price: 5999,
     },
     {
         name: 'Shave',
+        price: 2999,
     },
     {
-        name: 'Whiskey',
+        name: 'Colouring',
+        price: 10999,
     }
 ];
 app.use(express_1.default.static(path_1.default.join(__dirname, '/../pages/')));
+app.use(express_1.default.static(path_1.default.join(__dirname, '/../static/')));
 app.use(bodyParser.json());
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
@@ -42,6 +50,10 @@ app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, f
     if (req.query.name) {
         //find all users whose name contains name 
         const users = yield Database.collection("Users").find({ name: { $regex: req.query.name } }).toArray();
+        // remove all passwords from the users
+        users.forEach((user) => {
+            delete user.password;
+        });
         return res.send(users);
     }
     const Users = yield Database.collection("Users").find({}).toArray();
@@ -51,13 +63,36 @@ app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, f
 app.get(apiVersion + '/users/:userid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.params.userid) {
         const user = yield Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+        // remove password from response
+        delete user.password;
         return res.json(user);
     }
 }));
 //Get all appointments
 app.get(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const Users = yield Database.collection("Appointments").find({}).toArray();
-    return res.status(200).json(Users);
+    let query = {};
+    //append query params to query
+    req.query.userid ? query = Object.assign(Object.assign({}, query), { userid: req.query.userid }) : null;
+    req.query.date ? query = Object.assign(Object.assign({}, query), { date: req.query.date }) : null;
+    req.query.barberid ? query = Object.assign(Object.assign({}, query), { barberid: req.query.barberid }) : null;
+    if (Object.keys(query).length != 0) {
+        //get appointments that match query
+        let appointments = yield Database.collection("Appointments").find(query).toArray();
+        // save all barberids in an array
+        let barberids = appointments.map((appointment) => appointment.barberid);
+        // get all barbers with mongodb id that match the barberids
+        let barbers = yield Database.collection("Barbers").find({ _id: { $in: barberids.map((id) => mongodb.ObjectId(id)) } }).toArray();
+        // add the barbers to the appointments
+        appointments = appointments.map((appointment) => {
+            appointment.barber = barbers.find((barber) => barber._id == appointment.barberid).name;
+            return appointment;
+        });
+        return res.status(200).send(appointments);
+    }
+    //get all appointments
+    let appointments = yield Database.collection("Appointments").find({}).toArray();
+    appointments.barbername = yield Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(appointments.barberid) }).name;
+    return res.status(200).send(appointments);
 }));
 //get a single appointment
 app.get(apiVersion + '/appointments/:appointmentid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -100,9 +135,15 @@ app.post(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, 
     if (user != null) {
         return res.status(400).json({ message: "Username already exists." });
     }
+    // use bcrypt to hash password
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+    req.body.password = hash;
     //create user and insert into database, then return the result
-    const Users = yield Database.collection("Users").insertOne(req.body);
-    return res.status(200).json(Users);
+    const User = yield Database.collection("Users").insertOne(req.body);
+    //add line to json
+    User.token = jwt.sign({ username: req.body.username, userid: User.insertedId }, JWT_SECRET, { expiresIn: "30d" });
+    return res.status(200).json(User);
 }));
 //Post endpoint for appointments
 app.post(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -111,23 +152,27 @@ app.post(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, v
         return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields
-    if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.customer == null) {
-        return res.status(400).json({ message: "Bad request. Request needs to contain barber, date, time and customer." });
+    if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.userid == null) {
+        return res.status(400).json({ message: "Bad request. Request needs to contain barber, date, time and userid." });
     }
     //check if barber exists using mongoDB id
+    //check if id is valid id
+    if (!mongodb.ObjectId.isValid(req.body.barberid)) {
+        return res.status(400).json({ message: "barber does not exist." });
+    }
     const barber = yield Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(req.body.barberid) });
     if (barber == null) {
         return res.status(400).json({ message: "barber does not exist." });
     }
     //check if barber is busy at this time and date.
-    const appointment = yield Database.collection("Appointments").findOne({ barber: req.body.barberid, date: req.body.date, time: req.body.time });
+    const appointment = yield Database.collection("Appointments").findOne({ barberid: req.body.barberid, date: req.body.date, time: req.body.time });
     if (appointment != null) {
         return res.status(400).json({ message: "barber already has an appointment at this date/time." });
     }
     //check if customer exists
-    const customer = yield Database.collection("Users").findOne({ username: req.body.customer });
-    if (customer == null) {
-        return res.status(400).json({ message: "customer does not exist." });
+    const user = yield Database.collection("Users").findOne({ username: req.body.userid });
+    if (user == null) {
+        return res.status(400).json({ message: "user does not exist." });
     }
     //check formatting of date and time
     if (!req.body.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -149,16 +194,7 @@ app.post(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, v
     }
     //create appointment and insert into database, then return the result
     const Appointments = yield Database.collection("Appointments").insertOne(req.body);
-    return res.status(200).json(Appointments);
-}));
-//delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
-app.delete(apiVersion + '/appointments/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //check if id is not null
-    if (req.params.id == null) {
-        return res.status(400).json({ message: 'Invalid id' });
-    }
-    //delete appointment and return the result
-    const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
+    Appointments.barbername = barber.name;
     return res.status(200).json(Appointments);
 }));
 //post endpoint for barbers, takes in a username and generates a barber
@@ -168,19 +204,28 @@ app.post(apiVersion + '/barbers', (req, res) => __awaiter(void 0, void 0, void 0
         return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields, mongo will create an id for us
-    if (req.body.username == null) {
-        return res.status(400).json({ message: "Bad request. Request needs to contain a username." });
+    if (req.body.username == null || req.body.services == null) {
+        return res.status(400).json({ message: "Bad request. Request needs to contain a username. All barbers must have at least one service." });
+    }
+    //check if services is a json array with name and price fields
+    if (!Array.isArray(req.body.services)) {
+        return res.status(400).json({ message: "Bad request. Services needs to be an array." });
+    }
+    for (let i = 0; i < req.body.services.length; i++) {
+        if (req.body.services[i].name == null || req.body.services[i].price == null) {
+            return res.status(400).json({ message: "Bad request. Services needs to be an array of objects with name and price fields." });
+        }
     }
     //check if a user with this username exists. All barbers need to have a username, maybe call this method when a "barber" user is created?
     const user = yield Database.collection("Users").findOne({ username: req.body.username });
     if (user == null) {
-        return res.status(400).json({ message: "No user with this username." });
+        return res.status(400).json({ message: "No user with this username" });
     }
     //check if barber already exists (may cause problems, this check is not really needed.causes problems if two barbers share the same name,
     //however, this is very unlikely in our system.)
-    const barber = yield Database.collection("Barbers").findOne({ name: req.body.name });
+    const barber = yield Database.collection("Barbers").findOne({ username: req.body.username });
     if (barber != null) {
-        return res.status(400).json({ message: "barber already exists." });
+        return res.status(400).json({ message: "This user is already a barber." });
     }
     //add the name of the user to the barber object
     req.body.name = user.name;
@@ -199,12 +244,43 @@ app.post(apiVersion + "/login", (req, res) => __awaiter(void 0, void 0, void 0, 
     }
     //check if user exists
     const user = yield Database.collection("Users").findOne({ username: req.body.username });
-    if (user.password == req.body.password) {
-        return res.status(200).json({ message: "Login successful." });
+    // use bcrypt to compare the password
+    if (user == null || !bcrypt.compareSync(req.body.password, user.password)) {
+        return res.status(400).json({ message: "Invalid username or password." });
     }
     else {
-        return res.status(400).json({ message: "Login failed." });
+        //create a token for the user
+        const token = jwt.sign({ username: user.username, userid: user._id }, JWT_SECRET, { expiresIn: "30d" });
+        return res.status(200).json({ token: token });
     }
+}));
+app.delete(apiVersion + '/barbers/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //check if id is not null
+    if (req.params.id == null) {
+        return res.status(400).json({ message: 'Invalid id' });
+    }
+    //delete barber and return the result
+    const Barbers = yield Database.collection("Barbers").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
+    return res.status(200).json(Barbers);
+}));
+app.delete(apiVersion + '/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //check if id is not null
+    if (req.params.id == null) {
+        return res.status(400).json({ message: 'Invalid id' });
+    }
+    //delete user and return the result
+    const Users = yield Database.collection("Users").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
+    return res.status(200).json(Users);
+}));
+//delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
+app.delete(apiVersion + '/appointments/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //check if id is not null
+    if (req.params.id == null) {
+        return res.status(400).json({ message: 'Invalid id' });
+    }
+    //delete appointment and return the result
+    const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
+    return res.status(200).json(Appointments);
 }));
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
