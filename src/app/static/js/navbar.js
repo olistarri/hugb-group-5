@@ -1,6 +1,6 @@
 // run populate_navbar() when the page loads and on every page change
-window.onload = populate_navbar;
-window.onhashchange = populate_navbar;
+window.onload += populate_navbar;
+window.onhashchange += populate_navbar;
 
 
 function populate_navbar() {

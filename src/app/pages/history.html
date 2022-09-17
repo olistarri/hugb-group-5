@@ -12,10 +12,13 @@
         integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
         crossorigin="anonymous"></script>
 
-    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="./css/main.css">
   </head>
 
-  <body>
+  <script src="./js/history.js"></script>
+  <script src="./js/navbar.js"></script>
+
+  <body onload="history();populate_navbar();">
     <!---------- Code for the navigation bar starts -------- -->
     <div class="navbar-box">
       <ul class="nav" id="navbar">
@@ -33,20 +36,12 @@
     <!---------- Code for the navigation bar ends -------- -->
     <div class="main-div">
       <div class="center-div" style="margin-top: 30px">
-        <h2 class="text-center">Welcome to the barber booking site</h2>
+        <h2 class="text-center">My History</h2>
       </div>
 
-      <br>
-
-      <div class="center-div">
-        <button class="btn btn-primary btn-lg"><a style="color: white; text-decoration: none" 
-          href="choose_service.html">Book appointment</a></button>
-      </div>
 
     
-  </div>
+    </div>
 
 
-
-  </body>
-  <script src="../static/js/navbar.js"></script>
+</body>

@@ -107,4 +107,3 @@ function parseJwt (token) {
 
 // on form submit function event listner
 document.getElementById("signup-button").addEventListener("click",(e) => signup(e));
-
