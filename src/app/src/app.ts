@@ -71,12 +71,25 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
   req.query.date ? query = {...query, date: req.query.date} : null;
   req.query.barberid ? query = {...query, barberid: req.query.barberid} : null;
   if (Object.keys(query).length != 0) {
-    const appointments = await Database.collection("Appointments").find(query).toArray();
+    //get appointments that match query
+    let appointments = await Database.collection("Appointments").find(query).toArray();
+     // save all barberids in an array
+    let barberids = appointments.map((appointment: any) => appointment.barberid);
+    // get all barbers with mongodb id that match the barberids
+    let barbers = await Database.collection("Barbers").find({ _id: { $in: barberids.map((id: any) => mongodb.ObjectId(id)) } }).toArray();
+    // add the barbers to the appointments
+    appointments = appointments.map((appointment: any) => {
+      appointment.barber = barbers.find((barber: any) => barber._id == appointment.barberid).name;
+      return appointment;
+    });
     return res.status(200).send(appointments);
-  }
-  const Users:JSON = await Database.collection("Appointments").find({}).toArray();
-  return res.status(200).json(Users);
+  }    
+  //get all appointments
+  let appointments = await Database.collection("Appointments").find({}).toArray();
+  appointments.barbername = await Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(appointments.barberid) }).name;
+  return res.status(200).send(appointments);
 });
+
 //get a single appointment
 app.get(apiVersion + '/appointments/:appointmentid', async (req: Request, res: Response) => {
   if (req.params.appointmentid) {
