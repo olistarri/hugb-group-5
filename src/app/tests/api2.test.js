@@ -67,31 +67,31 @@ var appointmentObjectFail = {
 };
 var appointmentObjectFail1 = {  
     barberid: "6320cbb34f34a584a07ab6d6", //þegar appointment með id date og time
-    date: "2022-11-01", 
+    date: "2022-11-04", 
     time: "10:30",
     customer: "olistarri",  
 };
 var appointmentObjectFail2 = {  
     barberid: "6320cbb34f34a584a07ab6d6", 
-    date: "2022-11-02", 
+    date: "2022-11-05", 
     time: "12:00",
     customer: "asdf",  // customer ekki í users username
 };
 var appointmentObjectFail3 = {  
     barberid: "", 
-    date: "2022-11-02", 
+    date: "2022-11-06", 
     time: "12:00",
     customer: "olistarri",
 }
 var servicesObjectSuccess = {
     barberid: "123",   //id vitlaust
-    date: "2022-11-01",
+    date: "2022-11-07",
     time: "11:00",
     customer: "olistarri"  
 };
 var servicesObject1 = {
     barberid: "6320cbb34f34a584a07ab6d6",
-    date: "2022-11-01",
+    date: "2022-11-08",
     time: "11:00",
     customer: "123"  //ekki til
 };
@@ -213,6 +213,7 @@ describe('Endpoint tests', () => {
                 res.body.should.have.property('insertedId');
                 newAppointmentID = res.body.insertedId;
                 done();
+                
             });
     });
 

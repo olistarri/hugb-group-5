@@ -182,8 +182,8 @@ app.post(apiVersion + '/barbers', async (req: Request, res: Response) => {
   }
   //check if a user with this username exists. All barbers need to have a username, maybe call this method when a "barber" user is created?
   const user = await Database.collection("Users").findOne({username: req.body.username});
-  if (user == null) {
-    return res.status(400).json({message: "No user with this username."});
+  if (user != null) {
+    return res.status(400).json({message: "Username already exists."});
   }
   //check if barber already exists (may cause problems, this check is not really needed.causes problems if two barbers share the same name,
   //however, this is very unlikely in our system.)
