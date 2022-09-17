@@ -1,8 +1,12 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const app = express();
+const saltRounds = 10;
 const port = 3000;
+const JWT_SECRET = "VerySecretStringDoNotShare";
 
 const services = [
   {
@@ -33,6 +37,10 @@ app.get(apiVersion + '/users', async (req: Request, res: Response) => {
   if (req.query.name) {
     //find all users whose name contains name 
     const users = await Database.collection("Users").find({name: {$regex: req.query.name}}).toArray();
+    // remove all passwords from the users
+    users.forEach((user: any) => {
+      delete user.password;
+    });
     return res.send(users);
   }
 
@@ -44,6 +52,8 @@ app.get(apiVersion + '/users', async (req: Request, res: Response) => {
 app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
   if (req.params.userid) {
     const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+    // remove password from response
+    delete user.password;
     return  res.json(user);
   }
 });
@@ -102,6 +112,10 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
   if (user != null) {
     return res.status(400).json({message: "Username already exists."});
   }
+  // use bcrypt to hash password
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const hash = bcrypt.hashSync(req.body.password, salt);
+  req.body.password = hash;
   //create user and insert into database, then return the result
   const Users:JSON = await Database.collection("Users").insertOne(req.body);
   return res.status(200).json(Users);
@@ -205,12 +219,19 @@ app.post(apiVersion+"/login", async (req: Request, res: Response) => {
     }
     //check if user exists
     const user = await Database.collection("Users").findOne({username: req.body.username});
-    if (user.password == req.body.password) {
-      return res.status(200).json({message: "Login successful."});
+    
+    // use bcrypt to compare the password
+    if (user == null || !bcrypt.compareSync(req.body.password, user.password)) {
+      return res.status(400).json({message: "Invalid username or password."});
     }
-    else {
-      return res.status(400).json({message: "Login failed."});
+    else
+    {
+      //create a token for the user
+      const token = jwt.sign({username: user.username}, JWT_SECRET);
+      return res.status(200).json({token: token});
     }
+
+   
 });
 
 app.delete(apiVersion + '/barbers/:id', async (req: Request, res: Response) => {
