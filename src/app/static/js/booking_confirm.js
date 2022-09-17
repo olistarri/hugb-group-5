@@ -1,5 +1,5 @@
 var service = JSON.parse(sessionStorage.service);
-var barber = JSON.parse(sessionStorage.barber);
+var barber = sessionStorage.barbername;
 var time = JSON.parse(sessionStorage.time);
 console.log(time)
 //////////////////////////////// Sorry er orðinn þreyttur laga seinna
@@ -32,7 +32,10 @@ element.appendChild(tag);
 
 // price
 var tag = document.createElement("p");
-var text = document.createTextNode(` TimePrice: ${service[1]}`);
+// put period in price for over 1000
+var price = service[1].toString();
+var price = price.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+var text = document.createTextNode(` Price: ${price} kr`);
 tag.appendChild(text);
 var element = document.getElementById('details');
 element.appendChild(tag);
