@@ -11,13 +11,16 @@ const JWT_SECRET = "VerySecretStringDoNotShare";
 const services = [
   {
     name: 'Haircut',
+    price: 5999,
   },
   {
     name: 'Shave',
+    price: 2999,
   },
   {
 
-    name: 'Whiskey',
+    name: 'Colouring',
+    price: 10999,
   }
 ];
 
@@ -197,9 +200,22 @@ app.post(apiVersion + '/barbers', async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid body' });
   }
   //check if body has all the required fields, mongo will create an id for us
-  if (req.body.username == null) {
-    return res.status(400).json({message: "Bad request. Request needs to contain a username."});
+  if (req.body.username == null || req.body.services == null) {
+    return res.status(400).json({message: "Bad request. Request needs to contain a username. All barbers must have at least one service."});
   }
+  //check if services is a json array with name and price fields
+  if (!Array.isArray(req.body.services)) {
+    return res.status(400).json({message: "Bad request. Services needs to be an array."});
+  }
+  for (let i = 0; i < req.body.services.length; i++) {
+    if (req.body.services[i].name == null || req.body.services[i].price == null) {
+      return res.status(400).json({message: "Bad request. Services needs to be an array of objects with name and price fields."});
+    }
+  }
+
+
+
+
   //check if a user with this username exists. All barbers need to have a username, maybe call this method when a "barber" user is created?
   const user = await Database.collection("Users").findOne({username: req.body.username});
   if (user == null) {
