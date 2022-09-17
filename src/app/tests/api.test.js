@@ -18,7 +18,7 @@ describe('Endpoint tests', () => {
     });
     
     // GET User endpoint test -- DONE
-    it("GET /users", function (done) {
+    it("GET /users - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/users")
             .end((err, res) => {
@@ -30,7 +30,7 @@ describe('Endpoint tests', () => {
             });
     });
 
-    it("GET one specific user", function (done) {
+    it("GET one specific user - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/users/6320b455e9fbd820b1325bbd")
             .end((err, res) => {
@@ -46,7 +46,7 @@ describe('Endpoint tests', () => {
     });
 
     // GET Appointment endpoint test
-    it("GET /appointments", function (done) {
+    it("GET /appointments - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/appointments")
             .end((err, res) => {
@@ -58,7 +58,7 @@ describe('Endpoint tests', () => {
             });
     });
 
-    it("GET one specific appointment", function (done) {
+    it("GET one specific appointment - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/appointments/6320cc9e74e18135acb030ef")
             .end((err, res) => {
@@ -75,7 +75,7 @@ describe('Endpoint tests', () => {
     });
 
     // GET Barber endpoint test
-    it("GET /barbers", function (done) {
+    it("GET /barbers - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/barbers")
             .end((err, res) => {
@@ -87,7 +87,7 @@ describe('Endpoint tests', () => {
             });
     });
 
-    it("GET one specific barber", function (done) {
+    it("GET one specific barber - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/barber/6320cc9e74e18135acb030ef")
             .end((err, res) => {
@@ -101,7 +101,7 @@ describe('Endpoint tests', () => {
             });
     });
 
-    it("GET /services", function (done) {
+    it("GET /services - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/services")
             .end((err, res) => {
@@ -113,7 +113,7 @@ describe('Endpoint tests', () => {
             });
     });
 
-    it("GET one specific service", function (done) {
+    it("GET one specific service - SUCCESS", function (done) {
         chai.request(apiUrl)
             .get(apiVersion + "/services/6320cc9e74e18135acb030ef")
             .end((err, res) => {
@@ -126,4 +126,25 @@ describe('Endpoint tests', () => {
             done();
             });
     });
+
+    // it("DELETE one appointment - SUCCESS test", function (done) {
+    //     chai.request(apiUrl)
+    //         .delete(apiVersion + "/appointments/6320cc9e74e18135acb030ef")
+    //         .end((err, res) => {
+    //         res.should.have.status(200);
+    //         res.should.be.json;
+    //         done();
+    //         });
+    // });
+
+    // it("DELETE one appointment - FAIL test", function (done) {
+    //     chai.request(apiUrl)
+    //         .delete(apiVersion + "/appointments/")
+    //         .end((err, res) => {
+    //         res.should.have.status(400);
+    //         res.should.be.json;
+    //         res.body.should.have.property('messages').eql("Invalid id");
+    //         done();
+    //         });
+    // });
 });
