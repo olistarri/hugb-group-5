@@ -134,10 +134,10 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
   const hash = bcrypt.hashSync(req.body.password, salt);
   req.body.password = hash;
   //create user and insert into database, then return the result
-  const Users = await Database.collection("Users").insertOne(req.body);
+  const User = await Database.collection("Users").insertOne(req.body);
   //add line to json
-  Users.token = jwt.sign({username: user.username, userid: user._id}, JWT_SECRET, {expiresIn: "30d"});
-  return res.status(200).json(Users);
+  User.token = jwt.sign({username: req.body.username, userid: User.insertedId}, JWT_SECRET, {expiresIn: "30d"});
+  return res.status(200).json(User);
 });
 
 //Post endpoint for appointments
