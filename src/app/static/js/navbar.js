@@ -10,11 +10,14 @@ function populate_navbar() {
         if (JWT['exp'] < Date.now() / 1000) {
             localStorage.removeItem("token");
             localStorage.removeItem("userid");
-            navbar.appendChild(createNavbarItem("Login", "/login"));
+            navbar.appendChild(createNavbarItem("Login/Register", "/login.html"));
         }
         else {
-            navbar.appendChild(createNavbarItem("Logout", "/logout"));
+            navbar.appendChild(createNavbarItem("Logout", "/logout.html"));
         }
+    }
+    else {
+        navbar.appendChild(createNavbarItem("Login/Register", "/login.html"));
     }
 }
 ;
