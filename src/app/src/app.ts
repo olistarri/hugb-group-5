@@ -26,6 +26,7 @@ const services = [
 
 app.use(express.static(path.join(__dirname, '/../pages/')));
 app.use(express.static(path.join(__dirname, '/../static/')));
+app.use(express.static(path.join(__dirname, '/../')));
 app.use(bodyParser.json());
 
 const mongodb = require('mongodb');
