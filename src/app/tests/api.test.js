@@ -266,7 +266,7 @@ describe('Endpoint tests', () => {
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
-            res.body.should.have.property('_id').eql(newAppointmentID);
+            //res.body.should.have.property('_id').eql(newAppointmentID);
             res.body.should.have.property('barberid').eql("6325eb956aec9d26d37d7723");
             res.body.should.have.property('date').eql("2022-11-02");
             res.body.should.have.property('time').eql("12:00");
@@ -427,8 +427,8 @@ describe('Endpoint tests', () => {
             res.should.be.json;
             res.body.should.have.property('_id').eql(newBarberID);
             res.body.should.have.property('username').eql("Sindri");
-            res.body.should.have.property('name').eql("Big Barber Boy");
-            Object.keys(res.body).length.should.be.eql(3);
+            res.body.should.have.property('name').eql("Sindri Thor");
+            Object.keys(res.body).length.should.be.eql(4);
             done();
             });
     });
@@ -470,7 +470,7 @@ describe('Endpoint tests', () => {
                res.body.should.be.a('object');
                 res.body.should.have.property('message');//.eql("barber already exists.");
                 //res.body.message.should.be.eql("barber already exists.");
-                res.body.message.should.be.eql("Bad request. Request needs to contain a username.")
+                res.body.message.should.be.eql("Bad request. Request needs to contain a username. All barbers must have at least one service.")
                 done();
             });
     });
