@@ -16,3 +16,6 @@ Next we made the definition of done. It is stored under issues -> tasks (which a
 
 #08/09/2022 Finishing the definition of done.
 We had a short Discord meeting about the definition of done, went over it and the scrum master turned it in for further feedback.
+
+#15 - 18/09/22 Endpoint Tests
+We (Arnar and Ragnar) had been working on the endpoint tests. We divided the tasks between us on gitlab and worked indpendently in two seperate files, to prevent merge conflicts. Then when the majority of tests were ready, we merged the two files into one, making it easier to review. The other members helped us when we got stuck on some tests so it was good teamwork all around. 
