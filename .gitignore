@@ -3,4 +3,3 @@ node_modules/
 app.js
 app.js.map
 .nyc_output/
-coverage/
