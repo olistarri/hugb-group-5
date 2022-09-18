@@ -3,7 +3,7 @@ var availablePtag = document.getElementById("avail-dates"); // the p tag which d
 var dateText = document.createElement("p");
 var timebox = document.getElementById("timebox");
 
-var availTimes = ["9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "12:00", 
+var availTimes = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", 
                 "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"];
 
 datesSelection.addEventListener("change" , function() {
