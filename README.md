@@ -1,4 +1,5 @@
-# Barber Inc Booking System 
+# Barber Inc Booking System (BRARBRR)
+![Barber logo](https://i.ibb.co/w7JP8yN/a-logo-for-a-barber-shop-website-Seed-8844381-Steps-50-Guidance-7-5.png) 
 
 Barber Inc Booking System is a booking system for a barber shop, where clients can book their haircuts and shaves!
 
