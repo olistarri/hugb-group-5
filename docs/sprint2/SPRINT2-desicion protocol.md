@@ -33,5 +33,12 @@ Andri and Kári made the initial look for register.html, login.html, index.html,
 Sindri and Ólafur worked on...
 Arnar and Ragnar worked on...
 
+#17/09/2022 Work session
+Sindri and Ólafur finished all endpoints, the general segments are that customers can now register, log in, get all available appointments, get their previous appointsments and book a new appointment. In addition to this they fixed multiple bugs and joined the frontend to the backend.
+Today we kept working in our indiviudal groups but at the end started to merge them together.
+Andri and Kári kept working on the frontend. Made an additional page called booking_confirmed.html and finished the navigation between pages. Now the user can go trough the booking process and have all their actions logged. Sindri later connected the results to the endpoint.
+Arnar and Ragnar kept working on the endpoint test, they aim to finish them tomorrow.
+
+
 #15 - 18/09/22 Endpoint Tests
 We (Arnar and Ragnar) had been working on the endpoint tests. We divided the tasks between us on gitlab and worked indpendently in two seperate files, to prevent merge conflicts. Then when the majority of tests were ready, we merged the two files into one, making it easier to review. The other members helped us when we got stuck on some tests so it was good teamwork all around. 
