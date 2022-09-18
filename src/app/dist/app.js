@@ -37,6 +37,7 @@ const services = [
 ];
 app.use(express_1.default.static(path_1.default.join(__dirname, '/../pages/')));
 app.use(express_1.default.static(path_1.default.join(__dirname, '/../static/')));
+app.use(express_1.default.static(path_1.default.join(__dirname, '/../')));
 app.use(bodyParser.json());
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
@@ -62,10 +63,17 @@ app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, f
 //get a single user
 app.get(apiVersion + '/users/:userid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.params.userid) {
-        const user = yield Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
-        // remove password from response
+        if (req.params.userid.length != 24 || !mongodb.ObjectID.isValid(req.params.userid)) {
+            console.log("Invalid ID");
+            return res.status(400).json({ message: "Invalid user id" });
+        }
+        // find the user with the given id if not found return 400
+        const user = yield Database.collection("Users").findOne({ _id: new mongodb.ObjectID(req.params.userid) });
+        if (!user) {
+            return res.status(400).json({ message: "Invalid user id" });
+        }
         delete user.password;
-        return res.json(user);
+        return res.status(200).json(user);
     }
 }));
 //Get all appointments
@@ -97,6 +105,9 @@ app.get(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, vo
 //get a single appointment
 app.get(apiVersion + '/appointments/:appointmentid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.params.appointmentid) {
+        if (!mongodb.ObjectID.isValid(req.params.appointmentid)) {
+            return res.status(400).json({ message: "Invalid appointment id" });
+        }
         const appointment = yield Database.collection("Appointments").findOne({ _id: mongodb.ObjectId(req.params.appointmentid) });
         return res.json(appointment);
     }
@@ -158,28 +169,32 @@ app.post(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, v
     //check if barber exists using mongoDB id
     //check if id is valid id
     if (!mongodb.ObjectId.isValid(req.body.barberid)) {
-        return res.status(400).json({ message: "barber does not exist." });
+        return res.status(400).json({ message: "Barber does not exist." });
     }
     const barber = yield Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(req.body.barberid) });
     if (barber == null) {
-        return res.status(400).json({ message: "barber does not exist." });
+        return res.status(400).json({ message: "Barber does not exist." });
     }
     //check if barber is busy at this time and date.
     const appointment = yield Database.collection("Appointments").findOne({ barberid: req.body.barberid, date: req.body.date, time: req.body.time });
     if (appointment != null) {
-        return res.status(400).json({ message: "barber already has an appointment at this date/time." });
+        return res.status(400).json({ message: "Barber already has an appointment at this date/time." });
     }
     //check if customer exists using mongoDB id
+    //check if id is valid id
+    if (!mongodb.ObjectId.isValid(req.body.userid)) {
+        return res.status(400).json({ message: "User does not exist." });
+    }
     const user = yield Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.body.userid) });
     if (user == null) {
-        return res.status(400).json({ message: "user does not exist." });
+        return res.status(400).json({ message: "User does not exist." });
     }
     //check formatting of date and time
     if (!req.body.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return res.status(400).json({ message: "date is not in the correct format. Correct format is YYYY-MM-DD" });
+        return res.status(400).json({ message: "Date is not in the correct format. Correct format is YYYY-MM-DD" });
     }
     if (!req.body.time.match(/^\d{2}:\d{2}$/)) {
-        return res.status(400).json({ message: "time is not in the correct format. Correct format is HH:MM" });
+        return res.status(400).json({ message: "Time is not in the correct format. Correct format is HH:MM" });
     }
     //also check if the date is in the future
     const today = new Date();
