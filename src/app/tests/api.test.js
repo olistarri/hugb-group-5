@@ -13,6 +13,7 @@ var newBarberID = "";
 
 var barberObjectSuccess = {
     username: "Sindri", // username þarf að vera það sama og af User
+    services: [{name: "Haircut", price: 5999}]
 };
 
 var barberObjectFail = {
@@ -57,7 +58,7 @@ var appointmentObjectSuccess = {
     barberid: "6325eb956aec9d26d37d7723", //id þarf að vera til
     date: "2022-11-02", //eitt test er fail þegar efstu 3 eru þegar í kerfinu saman
     time: "12:00",
-    customer: "olistarri",  //þarf að vera til í User
+    userid: "olistarri",  //þarf að vera til í User
 };
 var appointmentObjectFail = {  
     barberid: "asdf", // barber ekki til
@@ -250,13 +251,12 @@ describe('Endpoint tests', () => {
             .set("Content-type", "application/json")
             .send(JSON.stringify(appointmentObjectSuccess))
             .end((err, res) => {
-                res.should.have.status(200);
-                res.should.be.json;
-                res.body.should.have.property('acknowledged').eql(true);
-                res.body.should.have.property('insertedId');
-                newAppointmentID = res.body.insertedId;
-                done();
-                
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.have.property('acknowledged').eql(true);
+            res.body.should.have.property('insertedId');
+            newAppointmentID = res.body.insertedId;
+            done();
             });
     });
 
@@ -270,7 +270,7 @@ describe('Endpoint tests', () => {
             res.body.should.have.property('barberid').eql("6325eb956aec9d26d37d7723");
             res.body.should.have.property('date').eql("2022-11-02");
             res.body.should.have.property('time').eql("12:00");
-            res.body.should.have.property('customer').eql('olistarri');
+            res.body.should.have.property('userid').eql('olistarri');
             Object.keys(res.body).length.should.be.eql(5);
             done();
             });
@@ -426,7 +426,7 @@ describe('Endpoint tests', () => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.have.property('_id').eql(newBarberID);
-            res.body.should.have.property('username').eql("barber1");
+            res.body.should.have.property('username').eql("Sindri");
             res.body.should.have.property('name').eql("Big Barber Boy");
             Object.keys(res.body).length.should.be.eql(3);
             done();
