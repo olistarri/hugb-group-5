@@ -53,27 +53,37 @@
 }
 
 .timebox {
-    max-width: 500px;
+    max-width: 600px;
     width: 60%;
-    background-color: gainsboro;
+    background-color: rgb(251, 251, 251);
     display: flex;
     flex-wrap: wrap;
-    border: 3px solid rgba(13,110,253,255);
+    padding: 2rem;
+    border-radius:1rem;
+    /*border: 3px solid rgba(13,110,253,255);*/
 }
 
 .timebox-item {
     text-align: center;
-    min-width: 80px;
+    min-width: 100px;
     width: fit-content;
     color: white;
     font-size: large;
     margin: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    background-color: blue;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: rgb(13,110,253);
+    border-radius: 8px;
+    border: 2px solid rgb(255,255,255);
 }
 
 .timebox-item:hover {
-    background-color: rebeccapurple;
+    background-color: white;
+    color: rgb(13,110,253);
+    border: 2px solid rgb(13,110,253);
     font-weight: bolder;
+}
+
+html {
+    background-color: white;
 }
