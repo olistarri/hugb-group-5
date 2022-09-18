@@ -2,3 +2,5 @@ node_modules/
 .env
 app.js
 app.js.map
+.nyc_output/
+coverage/
