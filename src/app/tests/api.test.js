@@ -58,55 +58,55 @@ var appointmentObjectSuccess = {
     barberid: "6325eb956aec9d26d37d7723", //id þarf að vera til
     date: "2022-11-02", //eitt test er fail þegar efstu 3 eru þegar í kerfinu saman
     time: "12:00",
-    userid: "olistarri",  //þarf að vera til í User
+    userid: "6325d90f4584f7a57192113c",  //þarf að vera til í User
 };
 var appointmentObjectFail = {  
     barberid: "asdf", // barber ekki til
     date: "2022-11-10", 
     time: "12:00",
-    customer: "olistarri",
+    userid: "6325d90f4584f7a57192113c",
 };
 var appointmentObjectFail1 = {  
     barberid: "6325eb956aec9d26d37d7723", //þegar appointment með id date og time
     date: "2022-11-04", 
     time: "10:30",
-    customer: "olistarri",  
+    userid: "6325d90f4584f7a57192113c",  
 };
 var appointmentObjectFail2 = {  
     barberid: "6325eb956aec9d26d37d7723", 
     date: "2022-11-05", 
     time: "12:00",
-    customer: "asdf",  // customer ekki í users username
+    userid: "asdf",  // customer ekki í users username
 };
 var appointmentObjectFail3 = {
     date: "2022-11-06", 
     time: "12:00",
-    customer: "olistarri",
+    userid: "6325d90f4584f7a57192113c",
 };
 var servicesObjectSuccess = {
     barberid: "123",   //id vitlaust
     date: "2022-11-07",
     time: "11:00",
-    customer: "olistarri"  
+    userid: "6325d90f4584f7a57192113c"  
 };
 var servicesObject1 = {
     barberid: "6325eb956aec9d26d37d7723",
     date: "2022-11-08",
     time: "11:00",
-    customer: "123"  //ekki til
+    userid: "123"  //ekki til
 };
 
 var servicesObjectSuccess2 = {
     barberid: "6325eb956aec9d26d37d7723", // 3 efstu þegar í appointments
     date: "2022-11-12",
     time: "10:30",
-    customer: "olistarri"  
+    userid: "6325d90f4584f7a57192113c"  
 };
 var servicesObjectSuccess2 = {
     barberid: "6325eb956aec9d26d37d7723", 
     date: "2022", // ekki rétt
     time: "10", // ekki rétt
-    customer: "olistarri"  
+    userid: "6325d90f4584f7a57192113c"  
 };
 
 describe('Endpoint tests', () => {
@@ -237,8 +237,8 @@ describe('Endpoint tests', () => {
             .end((err, res) => {
             res.should.have.status(400);
             res.should.be.json;
-            res.should.have.property('message').eql("Invalid id")
-            Object.keys(res.body).length.should.be.eql(5);
+            res.body.should.have.property('message').eql("Invalid user id")
+            Object.keys(res.body).length.should.be.eql(1);
             done();
             });
     });
@@ -270,7 +270,7 @@ describe('Endpoint tests', () => {
             res.body.should.have.property('barberid').eql("6325eb956aec9d26d37d7723");
             res.body.should.have.property('date').eql("2022-11-02");
             res.body.should.have.property('time').eql("12:00");
-            res.body.should.have.property('userid').eql('olistarri');
+            res.body.should.have.property('userid').eql('6325d90f4584f7a57192113c');
             Object.keys(res.body).length.should.be.eql(5);
             done();
             });
@@ -313,7 +313,7 @@ describe('Endpoint tests', () => {
                 res.should.be.json;
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
-                res.body.message.should.be.eql('barber does not exist.');
+                res.body.message.should.be.eql('Barber does not exist.');
                 done();
             });
     });
@@ -326,7 +326,7 @@ describe('Endpoint tests', () => {
                 res.should.have.status(400);
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
-                res.body.message.should.be.eql('barber already has an appointment at this date/time.');
+                res.body.message.should.be.eql('Barber already has an appointment at this date/time.');
                 done();
             });
     });
@@ -340,7 +340,7 @@ describe('Endpoint tests', () => {
                 res.should.be.json;
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
-                res.body.message.should.be.eql('customer does not exist.');
+                res.body.message.should.be.eql('User does not exist.');
                 done();
             });
     });
@@ -354,7 +354,7 @@ describe('Endpoint tests', () => {
                 res.should.be.json;
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
-                res.body.message.should.be.eql('Bad request. Request needs to contain barber, date, time and customer.');
+                res.body.message.should.be.eql('Bad request. Request needs to contain barber, date, time and userid.');
                 done();
             });
     });

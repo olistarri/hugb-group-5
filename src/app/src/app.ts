@@ -55,10 +55,17 @@ app.get(apiVersion + '/users', async (req: Request, res: Response) => {
 //get a single user
 app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
   if (req.params.userid) {
-    const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
-    // remove password from response
+    if(req.params.userid.length != 24 || !mongodb.ObjectID.isValid(req.params.userid)){
+      console.log("Invalid ID");
+      return res.status(400).json({message: "Invalid user id"});
+    }
+    // find the user with the given id if not found return 400
+    const user = await Database.collection("Users").findOne({_id: new mongodb.ObjectID(req.params.userid)});
+    if (!user) {
+      return res.status(400).json({message: "Invalid user id"});
+    }
     delete user.password;
-    return  res.json(user);
+    return res.status(200).json(user);
   }
 });
 
@@ -93,6 +100,9 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
 //get a single appointment
 app.get(apiVersion + '/appointments/:appointmentid', async (req: Request, res: Response) => {
   if (req.params.appointmentid) {
+    if(!mongodb.ObjectID.isValid(req.params.appointmentid)){
+      return res.status(400).json({message: "Invalid appointment id"});
+    }
     const appointment = await Database.collection("Appointments").findOne({ _id: mongodb.ObjectId(req.params.appointmentid) });
     return  res.json(appointment);
   }
@@ -162,29 +172,33 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
   //check if barber exists using mongoDB id
   //check if id is valid id
   if (!mongodb.ObjectId.isValid(req.body.barberid)) {
-    return res.status(400).json({message: "barber does not exist."});
+    return res.status(400).json({message: "Barber does not exist."});
   }
   const barber = await Database.collection("Barbers").findOne({_id: mongodb.ObjectId(req.body.barberid)});
   if (barber == null) {
-    return res.status(400).json({message: "barber does not exist."});
+    return res.status(400).json({message: "Barber does not exist."});
   }
 
   //check if barber is busy at this time and date.
   const appointment = await Database.collection("Appointments").findOne({barberid: req.body.barberid, date: req.body.date, time: req.body.time});
   if (appointment != null) {
-    return res.status(400).json({message: "barber already has an appointment at this date/time."});
+    return res.status(400).json({message: "Barber already has an appointment at this date/time."});
   }
   //check if customer exists using mongoDB id
+  //check if id is valid id
+  if (!mongodb.ObjectId.isValid(req.body.userid)) {
+    return res.status(400).json({message: "User does not exist."});
+  }
   const user = await Database.collection("Users").findOne({_id: mongodb.ObjectId(req.body.userid)});
   if (user == null) {
-    return res.status(400).json({message: "user does not exist."});
+    return res.status(400).json({message: "User does not exist."});
   }
   //check formatting of date and time
   if (!req.body.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return res.status(400).json({message: "date is not in the correct format. Correct format is YYYY-MM-DD"});
+    return res.status(400).json({message: "Date is not in the correct format. Correct format is YYYY-MM-DD"});
   }
   if (!req.body.time.match(/^\d{2}:\d{2}$/)) {
-    return res.status(400).json({message: "time is not in the correct format. Correct format is HH:MM"});
+    return res.status(400).json({message: "Time is not in the correct format. Correct format is HH:MM"});
   }
   //also check if the date is in the future
   const today = new Date();
