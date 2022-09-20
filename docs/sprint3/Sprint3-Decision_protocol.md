@@ -8,3 +8,9 @@ First we created the definition of done for this sprint. For this sprint, our ma
 
 Then we populated the sprint 3 backlog. We added the user stories that are related to the barber accounts and also stories that are related to the history tab. We did not manage to finish the history tab (which show previous/upcoming bookings) in the last sprint, so we will now make sure that we finish it. 
 
+We then decided that we will work in 3 groups. We have a lot of upcoming assignments so this will be the best way for us to work.
+The split will be the following
+
+UI: Andri and Kári
+Backend: Sindri and Ólafur
+Tests: Ragnar and Arnar
