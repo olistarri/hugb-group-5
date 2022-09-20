@@ -11,6 +11,6 @@ Then we populated the sprint 3 backlog. We added the user stories that are relat
 We then decided that we will work in 3 groups. We have a lot of upcoming assignments so this will be the best way for us to work.
 The split will be the following
 
-UI: Andri and Kári
-Backend: Sindri and Ólafur
-Tests: Ragnar and Arnar
+- UI: Andri and Kári
+- Backend: Sindri and Ólafur
+- Tests: Ragnar and Arnar
