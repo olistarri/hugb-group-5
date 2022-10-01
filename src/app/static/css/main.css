@@ -77,6 +77,19 @@
     border: 2px solid rgb(255,255,255);
 }
 
+.timebox-item:disabled
+{
+    background-color: rgb(177, 208, 255);
+    border: 2px solid rgb(255,255,255);
+}
+.timebox-item:disabled:hover
+{
+    background-color: rgb(177, 208, 255);
+    border: 2px solid rgb(255,255,255);
+    font-weight: 300;
+    color: white
+}
+
 .timebox-item:hover {
     background-color: white;
     color: rgb(13,110,253);

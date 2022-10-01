@@ -14,7 +14,7 @@ datesSelection.addEventListener("change" , function() {
     if (!isNaN(date[0])) { // If a valid date is selected, the site displays the date in a p tag
         dateText.innerHTML = "All available times for the date: " + date
         availablePtag.appendChild(dateText);
-        populateDateBox();
+        populateDateBox(date);
     }
 })
 
@@ -24,12 +24,29 @@ function fixDate(date) {
     return date
 }
 
-function populateDateBox() {
-    for (let i = 0; i < 15; i++) {
-        var timebox_item = document.createElement("button");
-        timebox_item.classList.add("timebox-item");
-        timebox_item.innerHTML = availTimes[i];
-        timebox.appendChild(timebox_item);
-    }
+async function populateDateBox(date) {
+    barberid = sessionStorage.getItem("barber");
+    unavailAppointments = [];
+    console.log(date);
+    await fetch('/api/v1/appointments?barberid=' + barberid + '&date=' + fixDate(date),{
+        method: 'GET'})
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            unavailAppointments.push(data[i]["time"]);
+        }
+        console.log(unavailAppointments);
+        for (let i = 0; i < 15; i++) {
+            var timebox_item = document.createElement("button");
+            timebox_item.classList.add("timebox-item");
+            timebox_item.innerHTML = availTimes[i];
+            timebox.appendChild(timebox_item);
+            if (unavailAppointments.includes(availTimes[i])) {
+                timebox_item.disabled = true;
+            };
+    
+   
+        }
+    });
 }
-
