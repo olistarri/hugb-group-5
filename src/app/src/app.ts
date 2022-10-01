@@ -3,6 +3,7 @@ import path from 'path';
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fridagar = require('fridagar');
 const app = express();
 const saltRounds = 10;
 const port = 3000;
@@ -79,6 +80,25 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
   req.query.date ? query = {...query, date: req.query.date} : null;
   req.query.barberid ? query = {...query, barberid: req.query.barberid} : null;
   if (Object.keys(query).length != 0) {
+    //check if query includes date, to see if it is a holiday.
+    if (req.query.date) {
+      // if date os a string
+      if (typeof req.query.date === "string") {
+        const year = req.query.date.split("-")[0];
+        const month = req.query.date.split("-")[1];
+        const holidays = fridagar.getHolidays(year, month);
+        console.log(year);
+        console.log(month);
+        console.log(holidays);
+        // check if date is in holiday array
+    
+    let currentHoliday = holidays.find((holiday: any) => {
+      return holiday.date.toISOString().split("T")[0] === req.query.date;
+    });
+    if (currentHoliday) {
+      return res.status(200).json({message: currentHoliday.description});
+    }}
+    }
     //get appointments that match query
     let appointments = await Database.collection("Appointments").find(query).toArray();
      // save all barberids in an array
