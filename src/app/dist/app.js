@@ -65,7 +65,7 @@ app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, f
 app.get(apiVersion + '/users/:userid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.params.userid) {
         if (req.params.userid.length != 24 || !mongodb.ObjectID.isValid(req.params.userid)) {
-            console.log("Invalid ID");
+            //console.log("Invalid ID");
             return res.status(400).json({ message: "Invalid user id" });
         }
         // find the user with the given id if not found return 400
@@ -92,9 +92,6 @@ app.get(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, vo
                 const year = req.query.date.split("-")[0];
                 const month = req.query.date.split("-")[1];
                 const holidays = fridagar.getHolidays(year, month);
-                console.log(year);
-                console.log(month);
-                console.log(holidays);
                 // check if date is in holiday array
                 let currentHoliday = holidays.find((holiday) => {
                     return holiday.date.toISOString().split("T")[0] === req.query.date;
@@ -324,7 +321,9 @@ app.delete(apiVersion + '/appointments/:id', (req, res) => __awaiter(void 0, voi
     if (appointment == null) {
         return res.status(400).json({ message: "No appointment with this id" });
     }
-    if (appointment.date > new Date()) {
+    //parse date from string
+    const currentDate = new Date(appointment.date);
+    if (currentDate > new Date()) {
         const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
         return res.status(200).json(Appointments);
     }
