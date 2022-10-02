@@ -12,7 +12,7 @@ var newUserID1 = "notok"
 var nullBody = null
 
 var newAppointmentID = "";
-var newAppointmentID1 = "notok"
+var newAppointmentID1 = "63260e0b6d67379920e90055"
 var newBarberID = "";
 
 var barberObjectSuccess = {
@@ -105,6 +105,7 @@ var appointmentObjectFail2 = {
     time: "12:00",
     userid: "asdf",  // customer ekki í users username
 };
+
 var appointmentObjectFail3 = {
     date: "2022-11-06", 
     time: "12:00",
@@ -137,6 +138,20 @@ var appointmentObjectFail7 = {
     date: "2022-11-06", 
     time: "12:01",
     userid: "6325d90f4584f7a57192113c",
+};
+
+var appointmentObjectFail8 = {
+    barberid: "6325eb956aec9d26d37d1234",
+    date: "2022-11-06", 
+    time: "12:01",
+    userid: "6325d90f4584f7a57192113c",
+};
+
+var appointmentObjectFail9 = {  
+    barberid: "6325eb956aec9d26d37d7723", 
+    date: "2022-11-05", 
+    time: "12:00",
+    userid: "6325eb956aec9d26d37d1234",  // customer ekki í users username
 };
 
 var servicesObjectSuccess = {
@@ -268,6 +283,20 @@ describe('Endpoint tests', () => {
                 done();
             });
     })
+
+    // it("DELETE /users invalid id", function (done) {
+    //     chai.request(apiUrl)
+    //         .delete(apiVersion + "/users/" + "123456789101")
+    //         .end((err, res) => {
+    //             res.should.have.status(400);
+    //             res.should.be.json;
+    //             res.body.should.be.a('object');
+    //             res.body.should.have.property('message');
+    //             res.body.message.should.be.eql('Invalid id')
+    //             done();
+    //         });
+    // })
+
     it("POST /users no name fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/users")
@@ -383,9 +412,35 @@ describe('Endpoint tests', () => {
             });
     })
 
+    it("DELETE /appointments/:id No appointment with this id", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/appointments/" + newAppointmentID1)
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('No appointment with this id');
+                done();
+            });
+    })
+
+    // it("DELETE /appointments/:id No appointment with this id", function (done) {
+    //     chai.request(apiUrl)
+    //         .delete(apiVersion + "/appointments/" + newAppointmentID)
+    //         .end((err, res) => {
+    //             res.should.have.status(400);
+    //             res.should.be.json;
+    //             res.body.should.be.a('object');
+    //             res.body.should.have.property('message');
+    //             res.body.message.should.be.eql('Cannot delete appointments in the past.');
+    //             done();
+    //         });
+    // })
+
     it("GET one specific appointment - FAIL", function (done) {
         chai.request(apiUrl)
-            .get(apiVersion + "/appointments/" + newAppointmentID1)
+            .get(apiVersion + "/appointments/" + "notok")
             .end((err, res) => {
             res.should.have.status(400);
             res.should.be.json;
@@ -410,7 +465,23 @@ describe('Endpoint tests', () => {
                 done();
             });
     });
-    it("POST /appointments barber id fail ", function (done) { // Enginn með þetta barber ID
+
+    it("POST /appointments barber not found fail ", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/appointments")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail8))
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Barber does not exist.');
+                done();
+            });
+    });
+
+    it("POST /appointments barber id wrong format fail ", function (done) { 
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
             .set("Content-type", "application/json")
@@ -424,6 +495,7 @@ describe('Endpoint tests', () => {
                 done();
             });
     });
+
     it("POST /appointments appointment at same time fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
@@ -508,6 +580,22 @@ describe('Endpoint tests', () => {
                 done();
             });
     });
+
+    it("POST /appointments customers username doesn't exist fail", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/appointments")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail9))
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('User does not exist.');
+                done();
+            });
+    });
+
     it("POST /appointments empty barber id fail", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/appointments")
