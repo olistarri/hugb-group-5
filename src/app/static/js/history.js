@@ -6,35 +6,60 @@ function history(){
         return;
     }
 
-        fetch("/api/v1/appointments?userid="+localStorage.getItem('userid'), {
-            // query parameter for user id
-            method: "GET",
-            headers: {"Content-Type": "application/json"},
-            })
-            .then(response => response.json())
-            .then( data => {
-                // response is a list of appointments
-                var main_div = document.getElementById("main-div");
-                for (var i = 0; i < data.length; i++) {
-                    var appointment = data[i];
-                    var div = document.createElement("div");
-                    div.className = "card";
-                    var div_body = document.createElement("div");
-                    div_body.className = "card-body";
-                    var h5 = document.createElement("h5");
-                    h5.className = "card-title";
-                    h5.innerHTML = appointment["barber"];
-                    var p = document.createElement("p");
-                    p.className = "card-text";
-                    p.innerHTML = "Service: " + appointment["service"];
-                    p.innerHTML = "Date: " + appointment["date"] + " Time: " + appointment["time"];
-                    div_body.appendChild(h5);
-                    div_body.appendChild(p);
-                    div.appendChild(div_body);
-                    main_div.appendChild(div);
-                }
+    fetch("/api/v1/appointments?userid="+localStorage.getItem('userid'), {
+        // query parameter for user id
+        method: "GET",
+        headers: {"Content-Type": "application/json"},
+        })
+    .then(response => response.json())
+    .then(data => {
+        var main_div = document.getElementById("main-div");
+        for (var i = 0; i < data.length; i++) {
+            var appointments = data[i];
+            var div = document.createElement("div");
+            div.className = "col";
+            var div_card = document.createElement("div");
+            div_card.className = "card mb-4 rounded-3 shadow-sm";
+            var div_card_header = document.createElement("div");
+            div_card_header.className = "card-header py-3";
+            var h4 = document.createElement("h4");
+            h4.className = "my-0 fw-normal";
+            h4.innerHTML = appointments["barber"];
+            div_card_header.appendChild(h4);
+            var div_card_body = document.createElement("div");
+            div_card_body.className = "card-body";
+            var ul = document.createElement("ul");
+            ul.className = "list-unstyled mt-3 mb-4";
+            var serv = document.createElement("serv");
+            var d = document.createElement("d");
+            linebreak = document.createElement("br");
+            serv.innerHTML = "Service: " + appointments["service"] || "Failed to retrieve service";
+            d.innerHTML = "Date: " + appointments["date"] + " Time: " + appointments["time"];
+            //li.innerHTML = appointments["description"] || "No description";
+            ul.appendChild(serv);
+            ul.appendChild(linebreak);
+            ul.appendChild(d);
+            var button = document.createElement("button");
+            button.type = "button";
+            button.className = "w-100 btn btn-lg btn-outline-primary";
+            button.id = appointments._id+"-"+appointments.name;
+            button.innerHTML = "Cancel appointment";
+            button.addEventListener("click", function(event) {
+                onbuttonclick(event.target.id);
             });
+            div_card_body.appendChild(ul);
+            div_card_body.appendChild(button);
+            div_card.appendChild(div_card_header);
+            div_card.appendChild(div_card_body);
+            div.appendChild(div_card);
+            main_div.appendChild(div);
+            
+        }
+        
+    });
             populate_navbar();
 }
+
+
 
 window.onload = history;
