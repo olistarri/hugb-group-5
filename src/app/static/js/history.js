@@ -36,9 +36,9 @@ function history(){
             linebreak_1 = document.createElement("br");
             linebreak_2 = document.createElement("br");
             linebreak_3 = document.createElement("br");
-            var service_string = appointments["service"];
-            serv.innerHTML = "Service: " + service_string.substring(service_string.indexOf('"')+1, service_string.indexOf(',')- 1);
-            price.innerHTML = "Price: " + service_string.substring(service_string.indexOf(',')+1, service_string.indexOf(']'));
+            var service_string = appointments["service"].split(",");
+            serv.innerHTML = "Service: " + service_string[0];
+            price.innerHTML = "Price: " + service_string[1] + " kr";
             d.innerHTML = "Date: " + appointments["date"];
             t.innerHTML = " Time: " + appointments["time"];
             //li.innerHTML = appointments["description"] || "No description";

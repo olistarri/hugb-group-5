@@ -96,6 +96,9 @@
     border: 2px solid rgb(13,110,253);
     font-weight: bolder;
 }
+tr {
+    height: 55px;
+}
 
 html {
     background-color: white;

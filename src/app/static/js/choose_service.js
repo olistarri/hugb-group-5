@@ -16,6 +16,6 @@ for (var i = 0; i < keys.length; i++) {
 
 function choose_service_main(key) {
     retArr = buttons[key];
-    sessionStorage.setItem('service', JSON.stringify(retArr));
+    sessionStorage.setItem('service', retArr);
     window.location.href = 'choose_barber.html';
 }
