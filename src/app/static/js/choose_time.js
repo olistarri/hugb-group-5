@@ -25,7 +25,12 @@ function fixDate(date) {
 }
 
 async function populateDateBox(date) {
-
+    // if selected date is in the past, display error message
+    if (new Date(date) < new Date()) {
+        dateText.innerHTML = "Please select a date in the future";
+        availablePtag.appendChild(dateText);
+        return;
+    }
     barberid = sessionStorage.getItem("barber");
     unavailAppointments = [];
     console.log(date);
@@ -94,11 +99,3 @@ function choose_time_main(time) {
     });
 }
 
-// on load check if user is logged in
-window.onload = function() {
-    if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
-        window.location.href = "/login.html";
-        return;
-    }
-    populate_navbar();
-}
