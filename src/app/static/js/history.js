@@ -52,7 +52,7 @@ function history(){
             var button = document.createElement("button");
             button.type = "button";
             button.className = "w-100 btn btn-lg btn-outline-primary";
-            button.id = appointments._id+"-"+appointments.name;
+            button.id = appointments._id;
             button.innerHTML = "Cancel appointment";
             button.addEventListener("click", function(event) {
                 onbuttonclick(event.target.id);
@@ -73,7 +73,22 @@ function history(){
 
 function onbuttonclick(idname) {
     // Implement delete functionality
-    console.log("One day I will have deleted: " + idname);
+    // send delete request to server
+    fetch("/api/v1/appointments/"+idname, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        })
+    .then(response => response.json())
+    .then(data => {
+       // remove card from appointments
+         var card = document.getElementById(idname).parentElement.parentElement.parentElement;
+            card.remove();
+            
+    });
+
+
+
+    console.log("I have deleted: " + idname);
 
     //window.location.href = "/choose_time.html";
 }

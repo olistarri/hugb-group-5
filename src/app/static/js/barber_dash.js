@@ -102,6 +102,7 @@ function populateTable(input) {
     for (var i = 0; i < input.length; i++) {
 
         var row = document.createElement("tr");
+        row.id = input[i]["_id"];
         var appoint_time = document.createElement("th");
         var appoint_type = document.createElement("td");
         var appoint_name = document.createElement("td");
@@ -125,6 +126,11 @@ function populateTable(input) {
             cancel_btn.classList.add("btn");
             cancel_btn.classList.add("btn-primary");
             cancel_btn.innerHTML = "Cancel";
+            // add event listener to cancel button
+            cancel_btn.addEventListener("click", function() {
+                var appointmentid = this.parentNode.parentNode.id;
+                cancelAppointment(appointmentid);
+            });
             cancel_btn_cell.appendChild(cancel_btn);
             row.appendChild(cancel_btn_cell);
         }
@@ -132,5 +138,18 @@ function populateTable(input) {
         tablebody.appendChild(row);
     }
 
+}
+
+function cancelAppointment(id) {
+    fetch('/api/v1/appointments/' + id, {
+        method: 'DELETE'
+        })
+    .then(response => response.json())
+    .then(data => {
+        // remove row from table
+        var row = document.getElementById(id);
+        row.remove();
+
+})
 }
 
