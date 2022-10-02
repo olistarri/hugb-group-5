@@ -28,6 +28,9 @@ function checkForm(e) {
                 localStorage.setItem("token", data["token"]);
                 // set user id in local storage
                 localStorage.setItem("userid", decoded["userid"]);
+
+                if(decoded.isBarber)
+                    localStorage.setItem('barberid', decoded['barberid']);
                 window.location.href = "/";
             }
             else {

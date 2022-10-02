@@ -1,4 +1,4 @@
-var service = JSON.parse(sessionStorage.service);
+var service = sessionStorage.service.split(",");
 var barber = sessionStorage.barbername;
 var time = JSON.parse(sessionStorage.time);
 console.log(time)

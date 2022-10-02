@@ -6,19 +6,28 @@ var table = document.getElementById("calendar-table");
 var tablehead = document.getElementById("table-head");
 var tablebody = document.getElementById("table-body");
 
-var testinput = ["9:00,Haircut,Otto,5.999 kr", "9:30,Shave,John,2.999 kr", "10:00,Colouring,Paul,10.999 kr", "10:30,Haircut,Abcd,5.999 kr"];
-var testinput2 = ["9:30,Shave,John,59.999 kr", "13:30,Haircut,John,20.999 kr", "15:00,Colouring,Paul,10.999 kr"];
 
 datesSelection.addEventListener("change" , function() {
-    var date = fixDate(datesSelection.value);
-    dateText.innerHTML = "";
-    
-    if (!isNaN(date[0])) { // If a valid date is selected, the site displays the date in a p tag
-        dateText.innerHTML = "Your schedule for the date: " + date
-        availablePtag.appendChild(dateText);
+    let barberid = localStorage.getItem("barberid");
+    fetch('/api/v1/appointments?barberid=' + barberid + '&date=' + datesSelection.value,{
+        method: 'GET'})
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if(data["message"]) {
+            dateText.innerHTML = "No appointments today, " + data["message"];
+        } else {
+            var date = fixDate(datesSelection.value);
+            dateText.innerHTML = "";
+            
+            if (!isNaN(date[0])) { // If a valid date is selected, the site displays the date in a p tag
+                dateText.innerHTML = "Your schedule for the date: " + date
+                availablePtag.appendChild(dateText);
 
-        populateTable(testinput2);
-    }
+                populateTable(data);
+            }
+        }   
+    })
 })
 
 function fixDate(date) {
@@ -39,6 +48,8 @@ availablePtag.appendChild(dateText);
 
 
 function populateTable(input) {
+
+
     tablehead.innerHTML = "";
     tablebody.innerHTML = "";
 
@@ -87,8 +98,7 @@ function populateTable(input) {
         tablehead.appendChild(cancel);
     }
 
-    for (var i = 0; i < testinput.length; i++) {
-        var input = testinput[i].split(",");
+    for (var i = 0; i < input.length; i++) {
 
         var row = document.createElement("tr");
         var appoint_time = document.createElement("th");
@@ -96,10 +106,12 @@ function populateTable(input) {
         var appoint_name = document.createElement("td");
         var appoint_price = document.createElement("td");
 
-        appoint_time.innerHTML = input[0];
-        appoint_type.innerHTML = input[1];
-        appoint_name.innerHTML = input[2];
-        appoint_price.innerHTML = input[3];
+        
+
+        appoint_time.innerHTML = input[i].time;
+        appoint_type.innerHTML = input[i].service.split(",")[0];
+        appoint_name.innerHTML = input[i].userid;
+        appoint_price.innerHTML = input[i].service.split(",")[1] + " kr";
 
         row.appendChild(appoint_time);
         row.appendChild(appoint_type);
