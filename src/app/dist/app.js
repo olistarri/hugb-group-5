@@ -284,7 +284,7 @@ app.post(apiVersion + "/login", (req, res) => __awaiter(void 0, void 0, void 0, 
         // Check if the username is a barber
         const barber = yield Database.collection("Barbers").findOne({ username: req.body.username });
         if (barber != null) {
-            const token = jwt.sign({ username: user.username, userid: user._id, isBarber: true }, JWT_SECRET, { expiresIn: "30d" });
+            const token = jwt.sign({ username: user.username, userid: user._id, isBarber: true, barberid: barber._id }, JWT_SECRET, { expiresIn: "30d" });
             return res.status(200).json({ token: token });
         }
         const token = jwt.sign({ username: user.username, userid: user._id, isBarber: false }, JWT_SECRET, { expiresIn: "30d" });
