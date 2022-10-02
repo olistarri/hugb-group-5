@@ -5,7 +5,7 @@ var keys = Object.keys(buttons);
 // if the user is not logged in, redirect to login page
 if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
     window.location.href = "/login.html";
-    return;
+    //return;
 }
 
 for (var i = 0; i < keys.length; i++) {
