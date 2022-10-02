@@ -7,7 +7,6 @@ var tablehead = document.getElementById("table-head");
 var tablebody = document.getElementById("table-body");
 
 var testinput = ["9:00,Haircut,Otto,5.999 kr", "9:30,Shave,John,2.999 kr", "10:00,Colouring,Paul,10.999 kr", "10:30,Haircut,Abcd,5.999 kr"];
-var testinput2 = ["9:30,Shave,John,59.999 kr", "13:30,Haircut,John,20.999 kr", "15:00,Colouring,Paul,10.999 kr"];
 
 datesSelection.addEventListener("change" , function() {
     var date = fixDate(datesSelection.value);
@@ -17,7 +16,7 @@ datesSelection.addEventListener("change" , function() {
         dateText.innerHTML = "Your schedule for the date: " + date
         availablePtag.appendChild(dateText);
 
-        populateTable(testinput2);
+        populateTable(testinput);
     }
 })
 
@@ -26,6 +25,8 @@ function fixDate(date) {
     date = date[2] + "-" + date[1] + "-" + date[0];
     return date
 }
+
+populateTable(testinput);
 
 // Set the starting date value as today
 Date.prototype.toDateInputValue = (function() {
@@ -39,9 +40,9 @@ availablePtag.appendChild(dateText);
 
 
 function populateTable(input) {
-    tablehead.innerHTML = "";
-    tablebody.innerHTML = "";
 
+    tablebody.innerHTML = "";
+    tablehead.innerHTML = "";
 
     var selectedDate = datesSelection.value;
 
@@ -121,4 +122,3 @@ function populateTable(input) {
 
 }
 
-populateTable(testinput);
