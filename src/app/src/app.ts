@@ -58,7 +58,7 @@ app.get(apiVersion + '/users', async (req: Request, res: Response) => {
 app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
   if (req.params.userid) {
     if(req.params.userid.length != 24 || !mongodb.ObjectID.isValid(req.params.userid)){
-      console.log("Invalid ID");
+      //console.log("Invalid ID");
       return res.status(400).json({message: "Invalid user id"});
     }
     // find the user with the given id if not found return 400
@@ -87,9 +87,6 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
         const year = req.query.date.split("-")[0];
         const month = req.query.date.split("-")[1];
         const holidays = fridagar.getHolidays(year, month);
-        console.log(year);
-        console.log(month);
-        console.log(holidays);
         // check if date is in holiday array
     
     let currentHoliday = holidays.find((holiday: any) => {
@@ -333,13 +330,22 @@ app.delete(apiVersion + '/users/:id', async (req: Request, res: Response) => {
 
 //delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
 app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response) => {
-  //check if id is not null
-  if (req.params.id == null) {
+  //check if id is not null and valid mongodb id
+  if (req.params.id == null || req.params.id == "" || !mongodb.ObjectId.isValid(req.params.id)) { 
     return res.status(400).json({ message: 'Invalid id' });
   }
-  //delete appointment and return the result
+  //if the appointment is in the future, delete appointment and return the result
+  const appointment = await Database.collection("Appointments").findOne({_id: mongodb.ObjectId(req.params.id)});
+  if (appointment == null) {
+    return res.status(400).json({message: "No appointment with this id"});
+  }
+  if (appointment.date > new Date()) {
   const Appointments:JSON = await Database.collection("Appointments").deleteOne({_id: mongodb.ObjectId(req.params.id)});
   return res.status(200).json(Appointments);
+  }
+  else {
+    return res.status(400).json({message: "Cannot delete appointments in the past."});
+  }
 });
 
 
