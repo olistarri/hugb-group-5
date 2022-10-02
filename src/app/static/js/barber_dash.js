@@ -36,6 +36,8 @@ function fixDate(date) {
     return date
 }
 
+populateTable(testinput);
+
 // Set the starting date value as today
 Date.prototype.toDateInputValue = (function() {
     var local = new Date(this);
@@ -52,7 +54,6 @@ function populateTable(input) {
 
     tablehead.innerHTML = "";
     tablebody.innerHTML = "";
-
 
     var selectedDate = datesSelection.value;
 
@@ -133,4 +134,3 @@ function populateTable(input) {
 
 }
 
-populateTable(testinput);
