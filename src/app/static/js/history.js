@@ -1,5 +1,4 @@
 // populate main-div with my appointments
-
 function history(){
     if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
         window.location.href = "/login.html";
@@ -31,14 +30,25 @@ function history(){
             var ul = document.createElement("ul");
             ul.className = "list-unstyled mt-3 mb-4";
             var serv = document.createElement("serv");
+            var price = document.createElement("serv");
             var d = document.createElement("d");
-            linebreak = document.createElement("br");
-            serv.innerHTML = "Service: " + appointments["service"] || "Failed to retrieve service";
-            d.innerHTML = "Date: " + appointments["date"] + " Time: " + appointments["time"];
+            var t = document.createElement("t");
+            linebreak_1 = document.createElement("br");
+            linebreak_2 = document.createElement("br");
+            linebreak_3 = document.createElement("br");
+            var service_string = appointments["service"];
+            serv.innerHTML = "Service: " + service_string.substring(service_string.indexOf('"')+1, service_string.indexOf(',')- 1);
+            price.innerHTML = "Price: " + service_string.substring(service_string.indexOf(',')+1, service_string.indexOf(']'));
+            d.innerHTML = "Date: " + appointments["date"];
+            t.innerHTML = " Time: " + appointments["time"];
             //li.innerHTML = appointments["description"] || "No description";
             ul.appendChild(serv);
-            ul.appendChild(linebreak);
+            ul.appendChild(linebreak_1);
+            ul.appendChild(price);
+            ul.appendChild(linebreak_2);
             ul.appendChild(d);
+            ul.appendChild(linebreak_3);
+            ul.appendChild(t);
             var button = document.createElement("button");
             button.type = "button";
             button.className = "w-100 btn btn-lg btn-outline-primary";
@@ -61,5 +71,11 @@ function history(){
 }
 
 
+function onbuttonclick(idname) {
+    // Implement delete functionality
+    console.log("One day I will have deleted: " + idname);
+
+    //window.location.href = "/choose_time.html";
+}
 
 window.onload = history;

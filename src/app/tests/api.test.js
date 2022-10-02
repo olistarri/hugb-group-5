@@ -83,7 +83,7 @@ var userObjectFail3 = {
 
 var appointmentObjectSuccess = {  
     barberid: "6325eb956aec9d26d37d7723", //id þarf að vera til
-    date: "2022-11-02", //eitt test er fail þegar efstu 3 eru þegar í kerfinu saman
+    date: "2022-12-14", //eitt test er fail þegar efstu 3 eru þegar í kerfinu saman
     time: "12:00",
     userid: "6325d90f4584f7a57192113c",  //þarf að vera til í User
 };
@@ -362,7 +362,7 @@ describe('Endpoint tests', () => {
             res.should.be.json;
             //res.body.should.have.property('_id').eql(newAppointmentID);
             res.body.should.have.property('barberid').eql("6325eb956aec9d26d37d7723");
-            res.body.should.have.property('date').eql("2022-11-02");
+            res.body.should.have.property('date').eql("2022-12-14");
             res.body.should.have.property('time').eql("12:00");
             res.body.should.have.property('userid').eql('6325d90f4584f7a57192113c');
             Object.keys(res.body).length.should.be.eql(5);
@@ -532,6 +532,16 @@ describe('Endpoint tests', () => {
             res.should.be.json;
             res.body.should.be.a('array');
             // res.body.length.should.be.eql(1);
+            done();
+            });
+    });
+    it("GET /appointments with holiday - SUCCESS", function (done) {
+        chai.request(apiUrl)
+            .get(apiVersion + "/appointments?date=2022-12-24")
+            .end((err, res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.message.should.be.eql('Aðfangadagur');
             done();
             });
     });
