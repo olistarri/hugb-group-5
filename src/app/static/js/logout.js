@@ -1,6 +1,11 @@
 function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("userid");
+    sessionStorage.removeItem("service");
+    sessionStorage.removeItem("barber");
+    sessionStorage.removeItem("time");
+    sessionStorage.removeItem("barbername");
+    
 }
 
 // Logout runs on page load then after 1 second it redirects to the index page

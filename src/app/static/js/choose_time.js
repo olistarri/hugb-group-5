@@ -25,6 +25,7 @@ function fixDate(date) {
 }
 
 async function populateDateBox(date) {
+
     barberid = sessionStorage.getItem("barber");
     unavailAppointments = [];
     console.log(date);
@@ -91,4 +92,13 @@ function choose_time_main(time) {
             window.location.href = 'booking_confirm.html';
         }
     });
+}
+
+// on load check if user is logged in
+window.onload = function() {
+    if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
+        window.location.href = "/login.html";
+        return;
+    }
+    populate_navbar();
 }
