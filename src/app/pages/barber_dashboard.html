@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.101.0">
+    <title>Barber Inc: Barber dashboard</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/pricing/">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+    crossorigin="anonymous"></script>
+    
+
+    
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="./css/main.css">
+  </head>
+
+  <body>
+    <!---------- Code for the navigation bar starts -------- -->
+    <div class="navbar-box">
+      <ul class="nav" id="navbar">
+
+      </ul>
+    </div>
+    <!---------- Code for the navigation bar ends -------- -->
+
+    <br>
+    <div class="center-div">
+        <header>
+            <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h1 class="display-4 fw-normal">My calendar</h1>
+            <p class="fs-5 text-muted">View your schedule</p>
+            
+            </div>
+        </header>
+    </div>
+
+    <div class="center-div">
+        <input id="date-input" type="date">
+    </div>
+    <br>
+
+    <div class="center-div" style="font-weight: bold;">
+        <p id="avail-dates" style="font-size: larger; text-align: center; margin-left: 20px; margin-right: 20px;">
+            
+        </p>
+    </div>
+
+   
+
+    <div class="center-div">
+        <table id="calendar-table" class="table">
+            <thead id="table-head">
+            <tr>
+                <th class="table-header" scope="col">Time</th>
+                <th class="table-header" scope="col">Type</th>
+                <th class="table-header" scope="col">Name</th>
+                <th class="table-header" scope="col">Price</th>
+                <th class="table-header" scope="col">Cancel</th>
+            </tr>
+            </thead>
+            <tbody id="table-body">
+            <tr>
+                <th scope="row">9:00</th>
+                <td>Haircut</td>
+                <td>Otto</td>
+                <td>5.999 kr</td>
+                <td><button type="button" class="btn btn-primary">Cancel</button></td>
+            </tr>
+            <tr>
+                <th scope="row">9:30</th>
+                <td>Shave</td>
+                <td>John</td>
+                <td>2.999 kr</td>
+                <td><button type="button" class="btn btn-primary">Cancel</button></td>
+            </tr>
+            <tr>
+                <th scope="row">10:00</th>
+                <td>Colouring</td>
+                <td>Paul</td>
+                <td>10.999 kr</td>
+                <td><button type="button" class="btn btn-primary">Cancel</button></td>
+            </tr>
+            <tr>
+                <th scope="row">10:30</th>
+                <td>Haircut</td>
+                <td>Abcd</td>
+                <td>5.999 kr</td>
+                <td><button type="button" class="btn btn-primary">Cancel</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    
+
+  </body>
+  
+  <script src="./js/navbar.js"></script>
+  <script src="./js/barber_dash.js"></script>
+</html>

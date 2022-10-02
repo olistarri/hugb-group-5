@@ -100,3 +100,12 @@
 html {
     background-color: white;
 }
+
+#calendar-table {
+    margin-right: -5%;
+    width: 50%;
+}
+
+.table_header {
+    width: 20%;
+}
