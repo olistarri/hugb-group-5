@@ -339,7 +339,9 @@ app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response)
   if (appointment == null) {
     return res.status(400).json({message: "No appointment with this id"});
   }
-  if (appointment.date > new Date()) {
+  //parse date from string
+  const currentDate = new Date(appointment.date);
+  if (currentDate > new Date()) {
   const Appointments:JSON = await Database.collection("Appointments").deleteOne({_id: mongodb.ObjectId(req.params.id)});
   return res.status(200).json(Appointments);
   }
