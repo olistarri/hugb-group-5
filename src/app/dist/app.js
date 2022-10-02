@@ -284,9 +284,15 @@ app.post(apiVersion + "/login", (req, res) => __awaiter(void 0, void 0, void 0, 
         return res.status(400).json({ message: "Invalid username or password." });
     }
     else {
-        //create a token for the user
-        const token = jwt.sign({ username: user.username, userid: user._id }, JWT_SECRET, { expiresIn: "30d" });
+        // Check if the username is a barber
+        const barber = yield Database.collection("Barbers").findOne({ username: req.body.username });
+        if (barber != null) {
+            const token = jwt.sign({ username: user.username, userid: user._id, isBarber: true }, JWT_SECRET, { expiresIn: "30d" });
+            return res.status(200).json({ token: token });
+        }
+        const token = jwt.sign({ username: user.username, userid: user._id, isBarber: false }, JWT_SECRET, { expiresIn: "30d" });
         return res.status(200).json({ token: token });
+        //create a token for the user
     }
 }));
 app.delete(apiVersion + '/barbers/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
