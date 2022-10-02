@@ -1,4 +1,4 @@
-# 20/07/2022 First group meeting in sprint 3
+# 20/09/2022 First group meeting in sprint 3
 
 We started by randomly selecting the scrum master. Arnar was selected. 
 
@@ -14,3 +14,11 @@ The split will be the following
 - UI: Andri and Kári
 - Backend: Sindri and Ólafur
 - Tests: Ragnar and Arnar
+
+# 27/09/2022 Second group meeting in sprint 3
+
+Today we took a short meeting about how we wanted to work on the project. Since we have a lot of assignments due this wednesday/thursday, we decided to work on the sprint next friday, saturday and sunday. We are still on schedule since we managed to get very far with sprint 2. 
+
+# 30/09/2022 Third group meeting in sprint 3
+
+Today we met on Discord to discuss the status of the project. We talked about how we wanted the UI to look and also how we wanted to implement the dynamic population. We feel like this sprint is very straight forward, so there weren't really any big decisions to be made. We decided to start the actual programming tomorrow and aim to finish the sprint early on Sunday.
