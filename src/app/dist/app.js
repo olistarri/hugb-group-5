@@ -315,13 +315,22 @@ app.delete(apiVersion + '/users/:id', (req, res) => __awaiter(void 0, void 0, vo
 }));
 //delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
 app.delete(apiVersion + '/appointments/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //check if id is not null
-    if (req.params.id == null) {
+    //check if id is not null and valid mongodb id
+    if (req.params.id == null || req.params.id == "" || !mongodb.ObjectId.isValid(req.params.id)) {
         return res.status(400).json({ message: 'Invalid id' });
     }
-    //delete appointment and return the result
-    const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
-    return res.status(200).json(Appointments);
+    //if the appointment is in the future, delete appointment and return the result
+    const appointment = yield Database.collection("Appointments").findOne({ _id: mongodb.ObjectId(req.params.id) });
+    if (appointment == null) {
+        return res.status(400).json({ message: "No appointment with this id" });
+    }
+    if (appointment.date > new Date()) {
+        const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
+        return res.status(200).json(Appointments);
+    }
+    else {
+        return res.status(400).json({ message: "Cannot delete appointments in the past." });
+    }
 }));
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
