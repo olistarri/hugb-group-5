@@ -89,12 +89,18 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
         const holidays = fridagar.getHolidays(year, month);
         // check if date is in holiday array
     
-    let currentHoliday = holidays.find((holiday: any) => {
-      return holiday.date.toISOString().split("T")[0] === req.query.date;
-    });
-    if (currentHoliday) {
-      return res.status(200).json({message: currentHoliday.description});
-    }}
+        let currentHoliday = holidays.find((holiday: any) => {
+          return holiday.date.toISOString().split("T")[0] === req.query.date;
+        });
+        // or if it is a weekend
+        let currentDay = new Date(req.query.date).getDay();
+        if (currentHoliday) {
+          return res.status(200).json({message: currentHoliday.description});
+        }
+        if (currentDay === 0 || currentDay === 6) {
+          return res.status(200).json({message: "Weekend"});
+        }
+      }
     }
     //get appointments that match query
     let appointments = await Database.collection("Appointments").find(query).toArray();

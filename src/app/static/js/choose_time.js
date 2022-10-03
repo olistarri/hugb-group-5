@@ -26,7 +26,7 @@ function fixDate(date) {
 
 async function populateDateBox(date) {
     // if selected date is in the past, display error message
-    if (new Date(date) < new Date()) {
+    if (new Date(fixDate(date)) < new Date()) {
         dateText.innerHTML = "Please select a date in the future";
         availablePtag.appendChild(dateText);
         return;
