@@ -18,7 +18,13 @@
             </div>
           </div>
 */
+
+
 function populate_barbers() {
+  if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
+    window.location.href = "/login.html";
+    return;
+  }
     fetch('/api/v1/barbers', {
         method: 'GET',
     })

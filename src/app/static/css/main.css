@@ -86,7 +86,7 @@
 {
     background-color: rgb(177, 208, 255);
     border: 2px solid rgb(255,255,255);
-    font-weight: 300;
+    font-weight: 400;
     color: white
 }
 
@@ -96,7 +96,19 @@
     border: 2px solid rgb(13,110,253);
     font-weight: bolder;
 }
+tr {
+    height: 55px;
+}
 
 html {
     background-color: white;
+}
+
+#calendar-table {
+    margin-right: -5%;
+    width: 50%;
+}
+
+.table_header {
+    width: 20%;
 }

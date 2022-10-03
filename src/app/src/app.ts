@@ -58,7 +58,7 @@ app.get(apiVersion + '/users', async (req: Request, res: Response) => {
 app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
   if (req.params.userid) {
     if(req.params.userid.length != 24 || !mongodb.ObjectID.isValid(req.params.userid)){
-      console.log("Invalid ID");
+      //console.log("Invalid ID");
       return res.status(400).json({message: "Invalid user id"});
     }
     // find the user with the given id if not found return 400
@@ -87,17 +87,20 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
         const year = req.query.date.split("-")[0];
         const month = req.query.date.split("-")[1];
         const holidays = fridagar.getHolidays(year, month);
-        console.log(year);
-        console.log(month);
-        console.log(holidays);
         // check if date is in holiday array
     
-    let currentHoliday = holidays.find((holiday: any) => {
-      return holiday.date.toISOString().split("T")[0] === req.query.date;
-    });
-    if (currentHoliday) {
-      return res.status(200).json({message: currentHoliday.description});
-    }}
+        let currentHoliday = holidays.find((holiday: any) => {
+          return holiday.date.toISOString().split("T")[0] === req.query.date;
+        });
+        // or if it is a weekend
+        let currentDay = new Date(req.query.date).getDay();
+        if (currentHoliday) {
+          return res.status(200).json({message: currentHoliday.description});
+        }
+        if (currentDay === 0 || currentDay === 6) {
+          return res.status(200).json({message: "Weekend"});
+        }
+      }
     }
     //get appointments that match query
     let appointments = await Database.collection("Appointments").find(query).toArray();
@@ -297,9 +300,15 @@ app.post(apiVersion+"/login", async (req: Request, res: Response) => {
     }
     else
     {
-      //create a token for the user
-      const token = jwt.sign({username: user.username, userid: user._id}, JWT_SECRET, {expiresIn: "30d"});
+      // Check if the username is a barber
+      const barber = await Database.collection("Barbers").findOne({username: req.body.username});
+      if (barber != null) {
+        const token = jwt.sign({username: user.username, userid: user._id, isBarber:true, barberid:barber._id}, JWT_SECRET, {expiresIn: "30d"});
+        return res.status(200).json({token: token});
+      }
+      const token = jwt.sign({username: user.username, userid: user._id,isBarber:false}, JWT_SECRET, {expiresIn: "30d"});
       return res.status(200).json({token: token});
+      //create a token for the user
     }
 
    
@@ -327,13 +336,24 @@ app.delete(apiVersion + '/users/:id', async (req: Request, res: Response) => {
 
 //delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
 app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response) => {
-  //check if id is not null
-  if (req.params.id == null) {
+  //check if id is not null and valid mongodb id
+  if (req.params.id == null || req.params.id == "" || !mongodb.ObjectId.isValid(req.params.id)) { 
     return res.status(400).json({ message: 'Invalid id' });
   }
-  //delete appointment and return the result
+  //if the appointment is in the future, delete appointment and return the result
+  const appointment = await Database.collection("Appointments").findOne({_id: mongodb.ObjectId(req.params.id)});
+  if (appointment == null) {
+    return res.status(400).json({message: "No appointment with this id"});
+  }
+  //parse date from string
+  const currentDate = new Date(appointment.date);
+  if (currentDate > new Date()) {
   const Appointments:JSON = await Database.collection("Appointments").deleteOne({_id: mongodb.ObjectId(req.params.id)});
   return res.status(200).json(Appointments);
+  }
+  else {
+    return res.status(400).json({message: "Cannot delete appointments in the past."});
+  }
 });
 
 

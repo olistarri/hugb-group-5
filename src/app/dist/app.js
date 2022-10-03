@@ -17,6 +17,7 @@ const path_1 = __importDefault(require("path"));
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fridagar = require('fridagar');
 const app = (0, express_1.default)();
 const saltRounds = 10;
 const port = 3000;
@@ -64,7 +65,7 @@ app.get(apiVersion + '/users', (req, res) => __awaiter(void 0, void 0, void 0, f
 app.get(apiVersion + '/users/:userid', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.params.userid) {
         if (req.params.userid.length != 24 || !mongodb.ObjectID.isValid(req.params.userid)) {
-            console.log("Invalid ID");
+            //console.log("Invalid ID");
             return res.status(400).json({ message: "Invalid user id" });
         }
         // find the user with the given id if not found return 400
@@ -84,6 +85,22 @@ app.get(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, vo
     req.query.date ? query = Object.assign(Object.assign({}, query), { date: req.query.date }) : null;
     req.query.barberid ? query = Object.assign(Object.assign({}, query), { barberid: req.query.barberid }) : null;
     if (Object.keys(query).length != 0) {
+        //check if query includes date, to see if it is a holiday.
+        if (req.query.date) {
+            // if date os a string
+            if (typeof req.query.date === "string") {
+                const year = req.query.date.split("-")[0];
+                const month = req.query.date.split("-")[1];
+                const holidays = fridagar.getHolidays(year, month);
+                // check if date is in holiday array
+                let currentHoliday = holidays.find((holiday) => {
+                    return holiday.date.toISOString().split("T")[0] === req.query.date;
+                });
+                if (currentHoliday) {
+                    return res.status(200).json({ message: currentHoliday.description });
+                }
+            }
+        }
         //get appointments that match query
         let appointments = yield Database.collection("Appointments").find(query).toArray();
         // save all barberids in an array
@@ -264,9 +281,15 @@ app.post(apiVersion + "/login", (req, res) => __awaiter(void 0, void 0, void 0, 
         return res.status(400).json({ message: "Invalid username or password." });
     }
     else {
-        //create a token for the user
-        const token = jwt.sign({ username: user.username, userid: user._id }, JWT_SECRET, { expiresIn: "30d" });
+        // Check if the username is a barber
+        const barber = yield Database.collection("Barbers").findOne({ username: req.body.username });
+        if (barber != null) {
+            const token = jwt.sign({ username: user.username, userid: user._id, isBarber: true, barberid: barber._id }, JWT_SECRET, { expiresIn: "30d" });
+            return res.status(200).json({ token: token });
+        }
+        const token = jwt.sign({ username: user.username, userid: user._id, isBarber: false }, JWT_SECRET, { expiresIn: "30d" });
         return res.status(200).json({ token: token });
+        //create a token for the user
     }
 }));
 app.delete(apiVersion + '/barbers/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -289,13 +312,24 @@ app.delete(apiVersion + '/users/:id', (req, res) => __awaiter(void 0, void 0, vo
 }));
 //delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
 app.delete(apiVersion + '/appointments/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //check if id is not null
-    if (req.params.id == null) {
+    //check if id is not null and valid mongodb id
+    if (req.params.id == null || req.params.id == "" || !mongodb.ObjectId.isValid(req.params.id)) {
         return res.status(400).json({ message: 'Invalid id' });
     }
-    //delete appointment and return the result
-    const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
-    return res.status(200).json(Appointments);
+    //if the appointment is in the future, delete appointment and return the result
+    const appointment = yield Database.collection("Appointments").findOne({ _id: mongodb.ObjectId(req.params.id) });
+    if (appointment == null) {
+        return res.status(400).json({ message: "No appointment with this id" });
+    }
+    //parse date from string
+    const currentDate = new Date(appointment.date);
+    if (currentDate > new Date()) {
+        const Appointments = yield Database.collection("Appointments").deleteOne({ _id: mongodb.ObjectId(req.params.id) });
+        return res.status(200).json(Appointments);
+    }
+    else {
+        return res.status(400).json({ message: "Cannot delete appointments in the past." });
+    }
 }));
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
