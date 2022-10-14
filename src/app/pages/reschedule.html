@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="generator" content="Hugo 0.101.0">
-    <title>Barber Inc: History</title>
+    <title>Barber Inc: Choose time</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/pricing/">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -17,7 +17,6 @@
     
     <!-- Custom styles for this template -->
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/choose_service.css">
   </head>
 
   <body>
@@ -28,30 +27,37 @@
       </ul>
     </div>
     <!---------- Code for the navigation bar ends -------- -->
-    
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-      <symbol id="check" viewBox="0 0 16 16">
-        <title>Check</title>
-        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-      </symbol>
-    </svg>
 
-    <div class="container py-3">
-      <header>
-        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-          <h1 class="display-4 fw-normal">History</h1>
-          <p class="fs-5 text-muted">Upcoming events.</p>
-          <br><br>
-        </div>
-      </header>
-      
-      <main>
-        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center" id="main-div">
-        </div>
-      </main>
-
+    <br>
+    <div class="center-div">
+        <header>
+            <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h4 class=" fs-3" id="appointment"></h1>
+            <p class="fs-5 text-muted">Choose a time</p>
+            <br>
+            </div>
+        </header>
     </div>
+
+    <div class="center-div">
+        <input id="date-input" type="date">
+    </div>
+    <br>
+
+    <div class="center-div" style="font-weight: bold;">
+        <p id="avail-dates" style="font-size: larger; text-align: center; margin-left: 20px; margin-right: 20px;">
+            
+        </p>
+    </div>
+
+    <div class="center-div" style="margin-top: 10px">
+        <div id="timebox" class="center-div timebox">
+
+        </div>
+    </div>
+    
+
   </body>
+  <script src="./js/reschedule.js"></script>
   <script src="./js/navbar.js"></script>
-  <script src="./js/history.js"></script>
 </html>

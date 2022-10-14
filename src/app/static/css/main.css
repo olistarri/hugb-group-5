@@ -6,6 +6,58 @@
     background-color: rgba(13,110,253,255) !important;
 }
 
+
+.navsegment{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    margin: 0 10px 0 10px;
+}
+
+.notification {
+    background-color: #ff2525;
+    color: white;
+    border-radius: 50%;
+    padding: 3px;
+    width: 2.7rem;
+    height: 2.7rem;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+    
+  }
+.notificationtext {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.tooltipz {
+  visibility: hidden;
+  width: 350px;
+  background-color: rgb(13,110,253);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+    right:0px;
+    top: 4rem;
+  z-index: 1;
+
+}
+a:hover .tooltipz {
+    visibility: visible;
+  }
+
 .main-div {
     display:flex;
     flex-direction: column;
@@ -31,17 +83,34 @@
 }
 
 .nav {
-    margin-left: 10px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .nav-item {
     margin-right: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
+    height:4rem;
+    transition: 0.2s;
 }
 
 .nav-item:hover {
     background-color: white;
+}
+
+/* if the notificatio nav-item is hovered, do nothing */
+.hover:hover {
+    background-color: rgba(13,110,253,255) !important;
+}
+.notification:hover {
+    background-color: white;
+}
+.hover:hover .notificationtext {
+    color: #ff2525;
 }
 
 .nav-item:hover .navbarletter {
@@ -105,10 +174,38 @@ html {
 }
 
 #calendar-table {
-    margin-right: -5%;
     width: 50%;
+    min-width:600px;
 }
 
 .table_header {
     width: 20%;
+}
+
+@media screen and (max-width: 720px) {
+    #calendar-table {
+        width: 90%;
+        margin-right: 0;
+        min-width: 300px;
+    }
+    .navsegment{
+        flex-direction: row;
+        align-items: center;
+    }
+    .nav{
+        flex-direction: column;
+        align-items: center;
+    }
+    .timebox{
+        width: 90%;
+        margin-right: 0;
+        min-width: 300px;
+    }
+}
+
+@media screen and (max-width: 555px) {
+    .navsegment{
+        flex-direction: column;
+        align-items: center;
+    }
 }
