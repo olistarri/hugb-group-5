@@ -117,7 +117,7 @@ function notification(isBarber,data) {
     var path = window.location.pathname;
     var page = path.split("/").pop();
 
-    if (page == "index.html") {
+    if (page == "index.html") { // if menu we add the notification box to the menu screen
         menuNotification(isBarber, data);
     }
 
