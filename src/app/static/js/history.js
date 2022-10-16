@@ -57,7 +57,13 @@ function history(){
             ul.appendChild(linebreak_3);
             ul.appendChild(t);
             div_card_body.appendChild(ul);
-            if(!appointments["cancelled"] && !appointmentpassed){
+            if(appointmentpassed){
+                var passed_element = document.createElement("passed_element");
+                passed_element.innerHTML = "Passed";
+                passed_element.style.fontWeight = "bold";
+                div_card_body.appendChild(passed_element);
+            }
+            else if(!appointments["cancelled"] && !appointmentpassed){
                 var cancelButton = document.createElement("button");
                 cancelButton.type = "button";
                 cancelButton.className = "w-100 btn btn-lg btn-outline-primary";
@@ -77,9 +83,6 @@ function history(){
                     rescheduleAppointment(event.target.id, appointments.barberid, appointments.service, appointments.barber, appointments.user);
                 });
                 div_card_body.appendChild(rescheduleButton);
-            }
-            else if(appointmentpassed){
-
             }
             else{
                 var cancelled = document.createElement("p");
