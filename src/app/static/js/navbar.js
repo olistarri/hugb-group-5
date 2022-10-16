@@ -2,21 +2,6 @@
 window.onload = populate_navbar;
 //window.onhashchange = populate_navbar;
 
-/*
-    <div class="navbar-box">
-      <ul class="nav" id="navbar">
-        <li class="nav-item">
-          <a class="navbarletter nav-link" href="index.html">Menu</a>
-        </li>
-        <li class="nav-item">
-          <a class="navbarletter nav-link" href="choose_service.html">Book</a>
-        </li>
-        <li class="nav-item">
-          <a class="navbarletter nav-link" href="history.html">History</a>
-        </li>
-      </ul>
-    </div>
-*/
 function populate_navbar() {
     var navbar = document.getElementById("navbar");
     const leftdiv = document.createElement("div");
@@ -95,22 +80,26 @@ function menuNotification(isBarber, data) {
 
     var headerH4 = document.createElement("h4");
     headerH4.classList.add("notif-box-head");
-    headerH4.innerHTML = "You have a cancelled appointment!";
+    headerH4.innerHTML = "You have important notifications!";
 
     notifBoxHead.appendChild(headerH4);
 
     var bulletList = document.createElement("ul");
-    var line1 = document.createElement("li");
-    line1.innerHTML = data[0].message;
+
+    for (var i = 0; i < data.length; i++) {
+        var line = document.createElement("li");
+        line.innerHTML = data[i].message;
+        bulletList.appendChild(line);
+    }
+
     var line2 = document.createElement("li");
-    line2.innerHTML = "Please reschedule or cancel this appointment by clicking "
+    line2.innerHTML = "Please reschedule or cancel the appointment(s) by clicking "
 
     var a = document.createElement("a");
     a.innerHTML = "here.";
     a.setAttribute("href", isBarber ? "/barber_dashboard.html" : "/history.html");
     line2.appendChild(a);
 
-    bulletList.appendChild(line1);
     bulletList.appendChild(line2);
 
     notifBoxContent.appendChild(notifBoxHead);
