@@ -2,13 +2,13 @@
 // if the user is not logged in, redirect to login page
 if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
     window.location.href = "/login.html";
-    //return;
+    //return 0;
 }
 
 fetch_services();
 
 function choose_service_main(key) {
-    retArr = buttons[key];
+    retArr = key.split(",");
     sessionStorage.setItem('service', retArr);
     window.location.href = 'choose_time.html';
 }
@@ -25,6 +25,9 @@ function parseJwt (token) {
 
 function fetch_services(){
     const barberid = sessionStorage.getItem("barber");
+    if (barberid == null) {
+        window.location.href = "/choose_barber.html";
+    }
     fetch('/api/v1/barbers/'+barberid, {
         method: 'GET',
         headers: {
@@ -77,14 +80,14 @@ function fetch_services(){
                 button.classList.add("btn");
                 button.classList.add("btn-lg");
                 button.classList.add("btn-outline-primary");
-                button.id = service.name + "-book-button";
+                button.id = service.name + "," + service.price;
                 button.innerHTML = "Book now";
                 card_body.appendChild(button);
                 card.appendChild(card_body);
                 col.appendChild(card);
                 services_list.appendChild(col);
 
-                document.getElementById(service.name + "-book-button").addEventListener('click', function(event){
+                document.getElementById(button.id).addEventListener('click', function(event){
                     choose_service_main(event.target.id);
                 });
             }
