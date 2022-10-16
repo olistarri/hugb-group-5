@@ -68,6 +68,9 @@ function getNotifications() {
     return notis;
 }
 
+
+// Creates the yellow notification box on the menu screen and populates it with all of the appointments 
+// that need rescheduling or to be cancelled.
 function menuNotification(isBarber, data) {
     var notifBox = document.createElement("div");
     notifBox.setAttribute("id", "notif-box");
@@ -95,7 +98,7 @@ function menuNotification(isBarber, data) {
     var line2 = document.createElement("li");
     line2.innerHTML = "Please reschedule or cancel the appointment(s) by clicking "
 
-    var a = document.createElement("a");
+    var a = document.createElement("a"); // href to the history page so the user can go directly to the cancel/reschedule section
     a.innerHTML = "here.";
     a.setAttribute("href", isBarber ? "/barber_dashboard.html" : "/history.html");
     line2.appendChild(a);
