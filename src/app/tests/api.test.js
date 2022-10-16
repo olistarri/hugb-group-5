@@ -97,8 +97,8 @@ var appointmentObjectFail = {
 };
 var appointmentObjectFail1 = {  
     barberid: "6325eb956aec9d26d37d7723", //þegar appointment með id date og time
-    date: "2022-12-14", 
-    time: "12:00",
+    date: "2022-12-20", 
+    time: "15:00",
     userid: "6325d90f4584f7a57192113c",  
     service: "Haircut, 4999"
 };
@@ -107,6 +107,7 @@ var appointmentObjectFail2 = {
     date: "2022-11-05", 
     time: "12:00",
     userid: "asdf",  // customer ekki í users username
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail3 = {
@@ -241,31 +242,26 @@ var loginObjectFail1 = {
 var holidayObj = {
     barberid: "63260d8d6d67379920e9005e", 
     date: "2022-11-20", 
-    userid: "63260c3a6d67379920e9005d"  
 };
 
 var holidayObjFail = {
     barberid: "63260d8d6d67379920e9005e", 
     date: "2022/12/12", 
-    userid: "63260c3a6d67379920e9005d"  
 };
 
 var holidayObjFail2 = {
     barberid: "63260d8d6d67379920e9005e", 
     date: "2022-12-12", 
-    userid: "63260c3a6d67379920e9005d"  
 };
 
 var holidayObjFail3 = {
     barberid: "63260d8d6d67379920e9005e", 
     date: "2021-12-12", 
-    userid: "63260c3a6d67379920e9005d"  
 };
 
 var holidayObjFail4 = {
     barberid: "63260d8d6d67379920e9005e", 
     date: "2021-11-21", 
-    userid: "6339bd012047a31aeab91c0a"  
 };
 
 var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im9saXN0YXJyaSIsInVzZXJpZCI6IjYzMjVkOTBmNDU4NGY3YTU3MTkyMTEzYyIsImlzQmFyYmVyIjpmYWxzZSwiaWF0IjoxNjY1OTQzNDgxLCJleHAiOjE2Njg1MzU0ODF9.BdF1acWXEBquj6XmhrG3c9XWzvVQSsYohhOcKVR8E-A";
@@ -282,6 +278,7 @@ describe('Endpoint tests', () => {
     // USER ENDPOINT TESTS //
 
     it("POST /users", function (done) {
+        this.timeout(5000);
         chai.request(apiUrl)
             .post(apiVersion + "/users")
             .set("Content-type", "application/json")
@@ -293,6 +290,7 @@ describe('Endpoint tests', () => {
                 res.body.should.have.property('acknowledged').eql(true);
                 res.body.should.have.property('insertedId');
                 newUserID = res.body.insertedId;
+
                 done();
             });
     });
@@ -579,6 +577,19 @@ describe('Endpoint tests', () => {
             });
     });
     
+    it("POST /appointments appointment at same time fail", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/appointments")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail1))
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Barber already has an appointment at this date/time.');
+                done();
+            });
+    });
 
     it("DELETE /appointments/:id", function (done) {
         chai.request(apiUrl)
@@ -677,19 +688,6 @@ describe('Endpoint tests', () => {
             });
     });
 
-    it("POST /appointments appointment at same time fail", function (done) {
-        chai.request(apiUrl)
-            .post(apiVersion + "/appointments")
-            .set("Content-type", "application/json")
-            .send(JSON.stringify(appointmentObjectFail1))
-            .end((err, res) => {
-                res.should.have.status(400);
-                res.body.should.be.a('object');
-                res.body.should.have.property('message');
-                res.body.message.should.be.eql('Barber already has an appointment at this date/time.');
-                done();
-            });
-    });
 
     it("POST /appointments date format incorrect fail", function (done) {
         chai.request(apiUrl)
@@ -801,7 +799,7 @@ describe('Endpoint tests', () => {
                 res.should.be.json;
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
-                res.body.message.should.be.eql('Bad request. Request needs to contain barber, date, time and userid.');
+                res.body.message.should.be.eql('Bad request. Request needs to contain barber, date, time, userid and service.');
                 done();
             });
     });
@@ -1113,13 +1111,13 @@ describe('Endpoint tests', () => {
     it("POST /holidays user not barber - FAIL", function (done) {
         chai.request(apiUrl)
             .post(apiVersion + "/holiday")
-            .set({ "Authorization": `${holidayToken}` })
+            .set({ "Authorization": `${token}` })
             .set("Content-type", "application/json")
             .send(JSON.stringify(holidayObjFail4))
             .end((err, res) => {
             res.should.have.status(401);
             res.body.should.have.property('message');
-            res.body.message.should.be.eql('Invalid token')
+            res.body.message.should.be.eql('Unauthorized')
             res.should.be.json;
             done();
             });
@@ -1137,5 +1135,32 @@ describe('Endpoint tests', () => {
             done();
             });
     });
-});
 
+    it("POST /holidays - FAIL HOLIDAY ALREADY EXISTS", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/holiday")
+            .set({ "Authorization": `${holidayToken}` })
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(holidayObj))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.body.message.should.be.eql("Holiday already exists")
+            res.should.be.json;
+            done();
+            });
+    });
+
+    it("DELETE /holidays - SUCCESS", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/holiday")
+            .set({ "Authorization": `${holidayToken}` })
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(holidayObj))
+            .end((err, res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            done();
+            });
+    });
+
+});
