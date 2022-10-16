@@ -40,7 +40,7 @@ function history(){
             var service_string = appointments["service"].split(",");
             serv.innerHTML = "Service: " + service_string[0];
             price.innerHTML = "Price: " + service_string[1] + " kr";
-            d.innerHTML = "Date: " + new Date(appointments["date"]).toString().split(' ').slice(0,4).join(' ');;
+            d.innerHTML = "Date: " + new Date(appointments["date"]).toString().split(' ').slice(0,4).join(' ');
             t.innerHTML = " Time: " + appointments["time"];
             if(appointments.needsRescheduling){
                 var notice = document.createElement("p");
@@ -57,7 +57,30 @@ function history(){
             ul.appendChild(linebreak_3);
             ul.appendChild(t);
             div_card_body.appendChild(ul);
-            if(!appointments["cancelled"] && !appointmentpassed){
+
+            // ---------- Calculating difference until date
+            var today = new Date();
+            var Difference_In_Time = (new Date(appointments["date"]).getTime() - today.getTime() ) / (1000*60*60*24);
+            if (Difference_In_Time > -1 && !appointments["cancelled"]) {
+                var days_until_element = document.createElement("days_until_element");
+                days_until_element.innerHTML = 'Days until appointment: ' + Math.round(Difference_In_Time);
+                days_until_element.style.fontWeight = "bold";
+                div_card_body.appendChild(days_until_element);
+                linebreak_days_until = document.createElement("br");
+                div_card_body.appendChild(linebreak_days_until);
+
+            }
+
+            if(appointmentpassed){
+                var passed_element = document.createElement("passed_element");
+                passed_element.innerHTML = "Passed";
+                passed_element.style.fontWeight = "bold";
+                div_card_body.appendChild(passed_element);
+
+            }
+            else if(!appointments["cancelled"] && !appointmentpassed){
+                line_break_cancel = document.createElement("br");
+                div_card_body.appendChild(line_break_cancel);
                 var cancelButton = document.createElement("button");
                 cancelButton.type = "button";
                 cancelButton.className = "w-100 btn btn-lg btn-outline-primary";
@@ -77,9 +100,6 @@ function history(){
                     rescheduleAppointment(event.target.id, appointments.barberid, appointments.service, appointments.barber, appointments.user);
                 });
                 div_card_body.appendChild(rescheduleButton);
-            }
-            else if(appointmentpassed){
-
             }
             else{
                 var cancelled = document.createElement("p");
