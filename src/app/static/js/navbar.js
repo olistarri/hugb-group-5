@@ -14,7 +14,7 @@ function populate_navbar() {
     navbar.appendChild(rightdiv);
 
     leftdiv.appendChild(CreateNavBarItem("Menu", "/index.html"));
-    leftdiv.appendChild(CreateNavBarItem("Book", "/choose_service.html"));
+    leftdiv.appendChild(CreateNavBarItem("Book", "/choose_barber.html"));
     
 
     if (localStorage.getItem("token")) {
