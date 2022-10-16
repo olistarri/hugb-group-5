@@ -186,7 +186,7 @@ function cancelAppointment(id) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ cancelled: true }) 
+        body: JSON.stringify({ needsRescheduling: true }) 
     })
     .then(response => response.json())
     .then(data => {

@@ -128,7 +128,7 @@ function cancelAppointment(idname) {
         method: "PATCH",
         headers: {"Content-Type": "application/json"
     },
-        body: JSON.stringify( {cancelled: true} )
+        body: JSON.stringify( {cancelled: true, needsRescheduling:false} )
         })
     .then(response => response.json())
     .then(() => {

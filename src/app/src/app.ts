@@ -594,13 +594,16 @@ app.post(apiVersion + '/holiday', async (req: Request, res: Response) => {
     //if the date is today, cancel all appointments after the current time
     // add the holiday to the holidays collection
     if (req.body.date == now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
-      const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, time: {$gt: now.getHours() + ":" + now.getMinutes()}, barberid: decoded.barberid}, {$set: {needsRescheduling: true}});
+      // do not add needsRescheduling flag to appointments that have already been cancelled or cancelled does not exist
+      //const Appointments:JSON = await Database.collection("Appointments").updateMany({barberId: decoded.id, date: req.body.date, time: {$gte: now.getHours() + ":" + now.getMinutes()}, cancelled: {$ne: true}}, {$set: {needsRescheduling: true}});
+      const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, time: {$gt: now.getHours() + ":" + now.getMinutes()}, barberid: decoded.barberid, cancelled: {$ne: true}}, {$set: {needsRescheduling: true}});
       await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
       return res.status(200).json(Appointments);
     }
     //if the date is in the future, cancel all appointments
     else if (req.body.date > now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
-      const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, barberid: decoded.barberid}, {$set: {needsRescheduling: true}});
+      // do not add needsRescheduling flag to appointments that have already been cancelled or cancelled does not exist
+      const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, barberid: decoded.barberid, cancelled: {$ne: true}}, {$set: {needsRescheduling: true}});
       await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
       return res.status(200).json(Appointments);
     }
