@@ -61,6 +61,7 @@ function history(){
             // ---------- Calculating difference until date
             var today = new Date();
             var Difference_In_Time = (new Date(appointments["date"]).getTime() - today.getTime() ) / (1000*60*60*24);
+            // This part of the code only runs if the days until the appointment are 0 or greater.
             if (Difference_In_Time > -1 && !appointments["cancelled"]) {
                 var days_until_element = document.createElement("days_until_element");
                 days_until_element.innerHTML = 'Days until appointment: ' + Math.round(Difference_In_Time);
@@ -122,6 +123,7 @@ function history(){
 
 function cancelAppointment(idname) {
     // cancelled = true in body
+    if (confirm("Are you sure you want to cancel this appointment?") == true) {
     fetch("/api/v1/appointments/"+idname, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"
@@ -138,11 +140,12 @@ function cancelAppointment(idname) {
        console.log(element)
        document.getElementById(idname).parentElement.removeChild(document.getElementById(idname));
        document.getElementById(idname).parentElement.removeChild(document.getElementById(idname));
-        element.appendChild(cancelled);
-        console.log(element)
+       element.appendChild(cancelled);
+       console.log(element)
             
     });
     console.log("I have deleted: " + idname);
+    }
 }
 
 function rescheduleAppointment(idname, barberid, service,barbername,user) {
