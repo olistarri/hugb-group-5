@@ -39,3 +39,5 @@ var text = document.createTextNode(` Price: ${price} kr`);
 tag.appendChild(text);
 var element = document.getElementById('details');
 element.appendChild(tag);
+
+sessionStorage.clear();

@@ -8,7 +8,7 @@ if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
 fetch_services();
 
 function choose_service_main(key) {
-    retArr = buttons[key];
+    retArr = key.split(",");
     sessionStorage.setItem('service', retArr);
     window.location.href = 'choose_time.html';
 }
@@ -80,14 +80,14 @@ function fetch_services(){
                 button.classList.add("btn");
                 button.classList.add("btn-lg");
                 button.classList.add("btn-outline-primary");
-                button.id = service.name + "-book-button";
+                button.id = service.name + "," + service.price;
                 button.innerHTML = "Book now";
                 card_body.appendChild(button);
                 card.appendChild(card_body);
                 col.appendChild(card);
                 services_list.appendChild(col);
 
-                document.getElementById(service.name + "-book-button").addEventListener('click', function(event){
+                document.getElementById(button.id).addEventListener('click', function(event){
                     choose_service_main(event.target.id);
                 });
             }
