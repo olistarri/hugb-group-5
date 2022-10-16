@@ -618,8 +618,25 @@ app.post(apiVersion + '/holiday', async (req: Request, res: Response) => {
   }
 });
     
-
-
+app.delete(apiVersion + '/holiday', async (req: Request, res: Response) => {
+  // get json object with date and barberid
+  const holiday = req.body;
+  if(holiday == null) {
+    return res.status(400).json({message: "Invalid request"});
+  }
+  if (holiday.date == null || holiday.date == "" || !holiday.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return res.status(400).json({ message: 'Invalid date' });
+  }
+  if (holiday.barberid == null || holiday.barberid == "") {
+    return res.status(400).json({ message: 'Invalid barberid' });
+  }
+  // remove holiday from the holidays collection
+  const result = await Database.collection("Daysoff").deleteOne({date: holiday.date, barberid: holiday.barberid});
+  if (result.deletedCount == 0) {
+    return res.status(400).json({message: "Holiday does not exist"});
+  }
+  return res.status(200).json(result);
+});
   
   
 
