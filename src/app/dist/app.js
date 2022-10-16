@@ -236,8 +236,8 @@ app.post(apiVersion + '/appointments', (req, res) => __awaiter(void 0, void 0, v
         return res.status(400).json({ message: 'Invalid body' });
     }
     //check if body has all the required fields
-    if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.userid == null) {
-        return res.status(400).json({ message: "Bad request. Request needs to contain barber, date, time and userid." });
+    if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.userid == null || req.body.service == null) {
+        return res.status(400).json({ message: "Bad request. Request needs to contain barber, date, time, userid and service." });
     }
     //check if barber exists using mongoDB id
     //check if id is valid id
@@ -397,7 +397,13 @@ app.get(apiVersion + '/notifications', (req, res) => __awaiter(void 0, void 0, v
         return res.status(401).json({ message: "Unauthorized" });
     }
     // check if the token is valid
-    const decoded = jwt.verify(token, JWT_SECRET);
+    //check if jwt is malformed
+    const decoded = jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return null;
+        }
+        return decoded;
+    });
     if (decoded == null) {
         return res.status(401).json({ message: "Unauthorized" });
     }
@@ -549,13 +555,16 @@ app.post(apiVersion + '/holiday', (req, res) => __awaiter(void 0, void 0, void 0
         //if the date is today, cancel all appointments after the current time
         // add the holiday to the holidays collection
         if (req.body.date == now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
-            const Appointments = yield Database.collection("Appointments").updateMany({ date: req.body.date, time: { $gt: now.getHours() + ":" + now.getMinutes() }, barberid: decoded.barberid }, { $set: { needsRescheduling: true } });
+            // do not add needsRescheduling flag to appointments that have already been cancelled or cancelled does not exist
+            //const Appointments:JSON = await Database.collection("Appointments").updateMany({barberId: decoded.id, date: req.body.date, time: {$gte: now.getHours() + ":" + now.getMinutes()}, cancelled: {$ne: true}}, {$set: {needsRescheduling: true}});
+            const Appointments = yield Database.collection("Appointments").updateMany({ date: req.body.date, time: { $gt: now.getHours() + ":" + now.getMinutes() }, barberid: decoded.barberid, cancelled: { $ne: true } }, { $set: { needsRescheduling: true } });
             yield Database.collection("Daysoff").insertOne({ date: req.body.date, barberid: decoded.barberid });
             return res.status(200).json(Appointments);
         }
         //if the date is in the future, cancel all appointments
         else if (req.body.date > now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
-            const Appointments = yield Database.collection("Appointments").updateMany({ date: req.body.date, barberid: decoded.barberid }, { $set: { needsRescheduling: true } });
+            // do not add needsRescheduling flag to appointments that have already been cancelled or cancelled does not exist
+            const Appointments = yield Database.collection("Appointments").updateMany({ date: req.body.date, barberid: decoded.barberid, cancelled: { $ne: true } }, { $set: { needsRescheduling: true } });
             yield Database.collection("Daysoff").insertOne({ date: req.body.date, barberid: decoded.barberid });
             return res.status(200).json(Appointments);
         }
@@ -568,6 +577,25 @@ app.post(apiVersion + '/holiday', (req, res) => __awaiter(void 0, void 0, void 0
     else {
         return res.status(401).json({ message: 'Invalid token' });
     }
+}));
+app.delete(apiVersion + '/holiday', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // get json object with date and barberid
+    const holiday = req.body;
+    if (holiday == null) {
+        return res.status(400).json({ message: "Invalid request" });
+    }
+    if (holiday.date == null || holiday.date == "" || !holiday.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return res.status(400).json({ message: 'Invalid date' });
+    }
+    if (holiday.barberid == null || holiday.barberid == "") {
+        return res.status(400).json({ message: 'Invalid barberid' });
+    }
+    // remove holiday from the holidays collection
+    const result = yield Database.collection("Daysoff").deleteOne({ date: holiday.date, barberid: holiday.barberid });
+    if (result.deletedCount == 0) {
+        return res.status(400).json({ message: "Holiday does not exist" });
+    }
+    return res.status(200).json(result);
 }));
 app.listen(port, () => {
     return console.log(`Barbershop site is available on http://localhost:${port}`);

@@ -86,18 +86,21 @@ var appointmentObjectSuccess = {
     date: "2022-12-14", //eitt test er fail þegar efstu 3 eru þegar í kerfinu saman
     time: "12:00",
     userid: "6325d90f4584f7a57192113c",  //þarf að vera til í User
+    service: "Haircut, 4999"
 };
 var appointmentObjectFail = {  
     barberid: "asdf", // barber ekki til
     date: "2022-11-10", 
     time: "12:00",
     userid: "6325d90f4584f7a57192113c",
+    service: "Haircut, 4999"
 };
 var appointmentObjectFail1 = {  
     barberid: "6325eb956aec9d26d37d7723", //þegar appointment með id date og time
-    date: "2022-11-04", 
-    time: "10:30",
+    date: "2022-12-14", 
+    time: "12:00",
     userid: "6325d90f4584f7a57192113c",  
+    service: "Haircut, 4999"
 };
 var appointmentObjectFail2 = {  
     barberid: "6325eb956aec9d26d37d7723", 
@@ -110,6 +113,7 @@ var appointmentObjectFail3 = {
     date: "2022-11-06", 
     time: "12:00",
     userid: "6325d90f4584f7a57192113c",
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail4 = {
@@ -117,6 +121,7 @@ var appointmentObjectFail4 = {
     date: "2022/11/06", 
     time: "12:00",
     userid: "6325d90f4584f7a57192113c",
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail5 = {
@@ -124,6 +129,7 @@ var appointmentObjectFail5 = {
     date: "2022-11-06", 
     time: "12;00",
     userid: "6325d90f4584f7a57192113c",
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail6 = {
@@ -131,6 +137,7 @@ var appointmentObjectFail6 = {
     date: "2021-11-06", 
     time: "12:00",
     userid: "6325d90f4584f7a57192113c",
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail7 = {
@@ -138,6 +145,7 @@ var appointmentObjectFail7 = {
     date: "2022-11-06", 
     time: "12:01",
     userid: "6325d90f4584f7a57192113c",
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail8 = {
@@ -145,6 +153,7 @@ var appointmentObjectFail8 = {
     date: "2022-11-06", 
     time: "12:01",
     userid: "6325d90f4584f7a57192113c",
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail9 = {  
@@ -152,6 +161,7 @@ var appointmentObjectFail9 = {
     date: "2022-11-05", 
     time: "12:00",
     userid: "6325eb956aec9d26d37d1234",  // customer ekki í users username
+    service: "Haircut, 4999"
 };
 
 var appointmentObjectFail10 = {  
@@ -159,6 +169,7 @@ var appointmentObjectFail10 = {
     date: "2022-11-05", 
     time: "25:00",
     userid: "6325d90f4584f7a57192113c",  
+    service: "Haircut, 4999"
 };
 
 var patchAppointment = {   
@@ -466,7 +477,8 @@ describe('Endpoint tests', () => {
             res.body.should.have.property('date').eql("2022-12-14");
             res.body.should.have.property('time').eql("12:00");
             res.body.should.have.property('userid').eql('6325d90f4584f7a57192113c');
-            Object.keys(res.body).length.should.be.eql(5);
+            res.body.should.have.property('service').eql('Haircut, 4999')
+            Object.keys(res.body).length.should.be.eql(6);
             done();
             });
     });
@@ -606,19 +618,6 @@ describe('Endpoint tests', () => {
                 done();
             });
     })
-
-    // it("DELETE /appointments/:id No appointment with this id", function (done) {
-    //     chai.request(apiUrl)
-    //         .delete(apiVersion + "/appointments/" + newAppointmentID)
-    //         .end((err, res) => {
-    //             res.should.have.status(400);
-    //             res.should.be.json;
-    //             res.body.should.be.a('object');
-    //             res.body.should.have.property('message');
-    //             res.body.message.should.be.eql('Cannot delete appointments in the past.');
-    //             done();
-    //         });
-    // })
 
     it("GET one specific appointment - FAIL", function (done) {
         chai.request(apiUrl)
