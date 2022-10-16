@@ -192,6 +192,42 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
   return res.status(200).json(User);
 });
 
+//Patch endpoint for users
+app.patch(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
+  //check if body is not null
+  //empty json object
+  if (req.body == null || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: 'Invalid body' });
+  }
+  //body needs at least one of the following fields
+  if (req.body.name == null && req.body.email == null && req.body.phone == null) {
+    return res.status(400).json({message: "Bad request. Request needs to contain name, email and phone."});
+  }
+  //check if userid is valid
+  if(!mongodb.ObjectID.isValid(req.params.userid)){
+    return res.status(400).json({message: "Invalid user id"});
+  }
+  //check if user exists
+  const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+  if (user == null) {
+    return res.status(400).json({message: "User does not exist."});
+  }
+  //check if user is trying to change username
+  if (req.body.username != null) {
+    return res.status(400).json({message: "Cannot change username."});
+  }
+  //check if user is trying to change password
+  if (req.body.password != null) {
+    return res.status(400).json({message: "Cannot change password."});
+  }
+  //update user and return the result
+  const User = await Database.collection("Users").updateOne({ _id: mongodb.ObjectId(req.params.userid) }, { $set: req.body });
+  return res.status(200).json(User);
+});
+
+
+
+
 //Post endpoint for appointments
 app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
   //check if body is not null
