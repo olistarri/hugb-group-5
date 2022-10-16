@@ -115,10 +115,12 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
     let userids = appointments.map((appointment: any) => appointment.userid);
     // get all barbers and users with mongodb ids that match the barberids
     let barbers = await Database.collection("Barbers").find({ _id: { $in: barberids.map((id: any) => mongodb.ObjectId(id)) } }).toArray();
-    let users = await Database.collection("Users").find({ _id: { $in: userids.map((id: any) => mongodb.ObjectId(id)) } }).toArray();
+    let users = await Database.collection("Users").find({}).toArray();
     // add the barbers to the appointments
     appointments = appointments.map((appointment: any) => {
-      appointment.barber = barbers.find((barber: any) => barber._id == appointment.barberid).name;
+      let barberUsername = barbers.find((barber: any) => barber._id == appointment.barberid).username;
+      let barberUser = users.find((user: any) => user.username == barberUsername);
+      appointment.barber = barberUser.name; 
       appointment.user = users.find((user: any) => user._id == appointment.userid).name;
       return appointment;
     });
@@ -144,14 +146,23 @@ app.get(apiVersion + '/appointments/:appointmentid', async (req: Request, res: R
 
 
 app.get(apiVersion + '/barbers', async (req: Request, res: Response) => {
-  const Users:JSON = await Database.collection("Barbers").find({}).toArray();
-  return res.status(200).json(Users);
+  //join barber.username on user.username, add user.name to barbers
+  const barbers = await Database.collection("Barbers").find({}).toArray();
+  const user = await Database.collection("Users").find({}).toArray();
+  //iterate over barbers and add user.name to barber
+  barbers.forEach((barber: any) => {
+    barber.name = user.find((user: any) => user.username === barber.username).name;
+  });
+  return res.status(200).json(barbers);
+  
 });
 
 //get a single barber
 app.get(apiVersion + '/barbers/:barberid', async (req: Request, res: Response) => {
   if (req.params.barberid) {
     const barber = await Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(req.params.barberid) });
+    const user = await Database.collection("Users").findOne({ username: barber.username });
+    barber.name = user.name;
     return  res.status(200).json(barber);
   }
 });
@@ -191,6 +202,42 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
   User.token = jwt.sign({username: req.body.username, userid: User.insertedId}, JWT_SECRET, {expiresIn: "30d"});
   return res.status(200).json(User);
 });
+
+//Patch endpoint for users
+app.patch(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
+  //check if body is not null
+  //empty json object
+  if (req.body == null || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: 'Invalid body' });
+  }
+  //body needs at least one of the following fields
+  if (req.body.name == null && req.body.email == null && req.body.phone == null) {
+    return res.status(400).json({message: "Bad request. Request needs to contain name, email and phone."});
+  }
+  //check if userid is valid
+  if(!mongodb.ObjectID.isValid(req.params.userid)){
+    return res.status(400).json({message: "Invalid user id"});
+  }
+  //check if user exists
+  const user = await Database.collection("Users").findOne({ _id: mongodb.ObjectId(req.params.userid) });
+  if (user == null) {
+    return res.status(400).json({message: "User does not exist."});
+  }
+  //check if user is trying to change username
+  if (req.body.username != null) {
+    return res.status(400).json({message: "Cannot change username."});
+  }
+  //check if user is trying to change password
+  if (req.body.password != null) {
+    return res.status(400).json({message: "Cannot change password."});
+  }
+  //update user and return the result
+  const User = await Database.collection("Users").updateOne({ _id: mongodb.ObjectId(req.params.userid) }, { $set: req.body });
+  return res.status(200).json(User);
+});
+
+
+
 
 //Post endpoint for appointments
 app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
@@ -400,7 +447,7 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
     userids.push(appointment.userid);
   });
   const barbers = await Database.collection("Barbers").find({_id:  { $in: barberids.map((id: any) => mongodb.ObjectId(id)) }}).toArray();
-  const users = await Database.collection("Users").find({_id:  { $in: userids.map((id: any) => mongodb.ObjectId(id)) }}).toArray();
+  const users = await Database.collection("Users").find({}).toArray();
   
   
   // add all notifications to an array and return it
@@ -424,7 +471,12 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
         // find barber name
         barbers.filter(barber => {
           if (barber._id == appointments[i].barberid) {
-            name = barber.name;
+            //find user with same username as barber
+            users.filter(user => {
+              if (user.username == barber.username) {
+                name = user.name;
+              }
+            });
           }
         });
       }
@@ -537,13 +589,13 @@ app.post(apiVersion + '/holiday', async (req: Request, res: Response) => {
     // add the holiday to the holidays collection
     if (req.body.date == now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
       const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, time: {$gt: now.getHours() + ":" + now.getMinutes()}, barberid: decoded.barberid}, {$set: {needsRescheduling: true}});
-      const Holidays:JSON = await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
+      await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
       return res.status(200).json(Appointments);
     }
     //if the date is in the future, cancel all appointments
     else if (req.body.date > now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
       const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, barberid: decoded.barberid}, {$set: {needsRescheduling: true}});
-      const Holidays:JSON = await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
+      await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
       return res.status(200).json(Appointments);
     }
     //if the date is in the past, return an error

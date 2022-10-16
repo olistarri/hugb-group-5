@@ -2,21 +2,6 @@
 window.onload = populate_navbar;
 //window.onhashchange = populate_navbar;
 
-/*
-    <div class="navbar-box">
-      <ul class="nav" id="navbar">
-        <li class="nav-item">
-          <a class="navbarletter nav-link" href="index.html">Menu</a>
-        </li>
-        <li class="nav-item">
-          <a class="navbarletter nav-link" href="choose_service.html">Book</a>
-        </li>
-        <li class="nav-item">
-          <a class="navbarletter nav-link" href="history.html">History</a>
-        </li>
-      </ul>
-    </div>
-*/
 function populate_navbar() {
     var navbar = document.getElementById("navbar");
     const leftdiv = document.createElement("div");
@@ -29,7 +14,7 @@ function populate_navbar() {
     navbar.appendChild(rightdiv);
 
     leftdiv.appendChild(CreateNavBarItem("Menu", "/index.html"));
-    leftdiv.appendChild(CreateNavBarItem("Book", "/choose_service.html"));
+    leftdiv.appendChild(CreateNavBarItem("Book", "/choose_barber.html"));
     
 
     if (localStorage.getItem("token")) {
@@ -84,7 +69,61 @@ function getNotifications() {
 }
 
 
+// Creates the yellow notification box on the menu screen and populates it with all of the appointments 
+// that need rescheduling or to be cancelled.
+function menuNotification(isBarber, data) {
+    var notifBox = document.createElement("div");
+    notifBox.setAttribute("id", "notif-box");
+    notifBox.classList.add("center-div");
+
+    var notifBoxContent = document.createElement("div");
+    
+    var notifBoxHead = document.createElement("div");
+    notifBoxHead.classList.add("center-div");
+
+    var headerH4 = document.createElement("h4");
+    headerH4.classList.add("notif-box-head");
+    headerH4.innerHTML = "You have important notifications!";
+
+    notifBoxHead.appendChild(headerH4);
+
+    var bulletList = document.createElement("ul");
+
+    for (var i = 0; i < data.length; i++) {
+        var line = document.createElement("li");
+        line.innerHTML = data[i].message;
+        bulletList.appendChild(line);
+    }
+
+    var line2 = document.createElement("li");
+    line2.innerHTML = "Please reschedule or cancel the appointment(s) by clicking "
+
+    var a = document.createElement("a"); // href to the history page so the user can go directly to the cancel/reschedule section
+    a.innerHTML = "here.";
+    a.setAttribute("href", isBarber ? "/barber_dashboard.html" : "/history.html");
+    line2.appendChild(a);
+
+    bulletList.appendChild(line2);
+
+    notifBoxContent.appendChild(notifBoxHead);
+    notifBoxContent.appendChild(bulletList);
+
+    notifBox.appendChild(notifBoxContent);
+
+    var boxLocation = document.getElementById("notifcation-box-filler");
+    boxLocation.appendChild(notifBox);
+}
+
+
 function notification(isBarber,data) {
+
+    var path = window.location.pathname;
+    var page = path.split("/").pop();
+
+    if (page == "index.html") { // if menu we add the notification box to the menu screen
+        menuNotification(isBarber, data);
+    }
+
     var li = document.createElement("li");
     li.setAttribute("class", "nav-item, hover");
     var a = document.createElement("a");
