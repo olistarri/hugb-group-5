@@ -614,7 +614,7 @@ app.post(apiVersion + '/holiday', async (req: Request, res: Response) => {
   }
   //if the user is not a barber, return an error
   else {
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 });
     
