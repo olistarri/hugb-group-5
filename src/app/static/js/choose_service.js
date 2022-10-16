@@ -2,7 +2,7 @@
 // if the user is not logged in, redirect to login page
 if (!localStorage.getItem("token") || !localStorage.getItem("userid")) {
     window.location.href = "/login.html";
-    //return;
+    //return 0;
 }
 
 fetch_services();
