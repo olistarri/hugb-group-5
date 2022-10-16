@@ -25,6 +25,9 @@ function parseJwt (token) {
 
 function fetch_services(){
     const barberid = sessionStorage.getItem("barber");
+    if (barberid == null) {
+        window.location.href = "/choose_barber.html";
+    }
     fetch('/api/v1/barbers/'+barberid, {
         method: 'GET',
         headers: {

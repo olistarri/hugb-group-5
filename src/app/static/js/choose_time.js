@@ -83,6 +83,9 @@ function choose_time_main(time) {
 
     }
     console.log(data);
+    if(localStorage.getItem("userid") == null || sessionStorage.getItem("barber") == null || sessionStorage.getItem("service") == null) {
+        window.location.href = "/index.html";
+    }
     fetch('/api/v1/appointments', {
         method: 'POST',
         headers: {
