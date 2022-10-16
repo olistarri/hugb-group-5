@@ -83,8 +83,55 @@ function getNotifications() {
     return notis;
 }
 
+function menuNotification(isBarber, data) {
+    var notifBox = document.createElement("div");
+    notifBox.setAttribute("id", "notif-box");
+    notifBox.classList.add("center-div");
+
+    var notifBoxContent = document.createElement("div");
+    
+    var notifBoxHead = document.createElement("div");
+    notifBoxHead.classList.add("center-div");
+
+    var headerH4 = document.createElement("h4");
+    headerH4.classList.add("notif-box-head");
+    headerH4.innerHTML = "You have a cancelled appointment!";
+
+    notifBoxHead.appendChild(headerH4);
+
+    var bulletList = document.createElement("ul");
+    var line1 = document.createElement("li");
+    line1.innerHTML = data[0].message;
+    var line2 = document.createElement("li");
+    line2.innerHTML = "Please reschedule or cancel this appointment by clicking "
+
+    var a = document.createElement("a");
+    a.innerHTML = "here.";
+    a.setAttribute("href", isBarber ? "/barber_dashboard.html" : "/history.html");
+    line2.appendChild(a);
+
+    bulletList.appendChild(line1);
+    bulletList.appendChild(line2);
+
+    notifBoxContent.appendChild(notifBoxHead);
+    notifBoxContent.appendChild(bulletList);
+
+    notifBox.appendChild(notifBoxContent);
+
+    var boxLocation = document.getElementById("notifcation-box-filler");
+    boxLocation.appendChild(notifBox);
+}
+
 
 function notification(isBarber,data) {
+
+    var path = window.location.pathname;
+    var page = path.split("/").pop();
+
+    if (page == "index.html") {
+        menuNotification(isBarber, data);
+    }
+
     var li = document.createElement("li");
     li.setAttribute("class", "nav-item, hover");
     var a = document.createElement("a");
