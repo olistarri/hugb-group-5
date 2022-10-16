@@ -1,4 +1,9 @@
 # 4/10/22 First group meeting in sprint 4
+
+Sindri var valinn scrum master í þessum spretti.
+
+Markmið þessa spretts er að:
+
 Bætt við flag á alla appointments svo þeir geti verið skráðir canceled í stað þess að eyða þeim.
 
 Barber getur skráð daga sem hann mætir ekki í vinnuna
@@ -22,7 +27,7 @@ Barber getur cancelað tíma, þá fær notandinn valmöguleikann á að resched
 Bókun á að virka svona:
 Velja fyrst barber, svo service þar sem barberar geta átt mismunandi services, og mismunandi verð. 
 
-As usual the tasks were divided as such
+Verkefniskipting er eftirfarandi:
 
 - UI: Andri and Kári
 - Backend: Sindri and Ólafur
@@ -50,4 +55,5 @@ We also added a flag to each appointment that had been cancelled to allow users 
 
 After all that we did a code review and implemented changes in response.
 
+We decided to leave one code review problem unsolved, and we will tackle it as an issue next sprint.
 
