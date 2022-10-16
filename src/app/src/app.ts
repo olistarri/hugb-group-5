@@ -246,8 +246,8 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid body' });
   }
   //check if body has all the required fields
-  if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.userid == null) {
-    return res.status(400).json({message: "Bad request. Request needs to contain barber, date, time and userid."});
+  if (req.body.barberid == null || req.body.date == null || req.body.time == null || req.body.userid == null || req.body.service == null) {
+    return res.status(400).json({message: "Bad request. Request needs to contain barber, date, time, userid and service."});
   }
   //check if barber exists using mongoDB id
   //check if id is valid id
