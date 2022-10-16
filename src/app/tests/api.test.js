@@ -154,6 +154,43 @@ var appointmentObjectFail9 = {
     userid: "6325eb956aec9d26d37d1234",  // customer ekki í users username
 };
 
+var appointmentObjectFail10 = {  
+    barberid: "6325eb956aec9d26d37d7723", 
+    date: "2022-11-05", 
+    time: "25:00",
+    userid: "6325d90f4584f7a57192113c",  
+};
+
+var patchAppointment = {   
+    date: "2022-12-20", 
+    time: "15:00",
+    needsRescheduling: false
+};
+
+var patchAppointmentFail = { 
+    date: "12-2022-20", 
+    time: "15:00",
+    needsRescheduling: false
+}
+
+var patchAppointmentFail1 = { 
+    date: "2022-12-20", 
+    time: "15-00",
+    needsRescheduling: false
+}
+
+var patchAppointmentFail2 = { 
+    date: "2022-12-20", 
+    time: "15:01",
+    needsRescheduling: false
+}
+
+var patchAppointmentFail3 = { 
+    date: "2021-12-20", 
+    time: "15:00",
+    needsRescheduling: false
+}
+
 var servicesObjectSuccess = {
     barberid: "123",   //id vitlaust
     date: "2022-11-07",
@@ -189,6 +226,11 @@ var loginObjectFail1 = {
     username: "ragnar",
     password: "ragnar1"
 };
+
+var tokenFail = "TokenUnauthorized";
+
+var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im9saXN0YXJyaSIsInVzZXJpZCI6IjYzMjVkOTBmNDU4NGY3YTU3MTkyMTEzYyIsImlzQmFyYmVyIjpmYWxzZSwiaWF0IjoxNjY1OTQzNDgxLCJleHAiOjE2Njg1MzU0ODF9.BdF1acWXEBquj6XmhrG3c9XWzvVQSsYohhOcKVR8E-A";
+
 
 describe('Endpoint tests', () => {
     beforeEach((done) => {
@@ -399,6 +441,100 @@ describe('Endpoint tests', () => {
             });
     });
 
+    it("PATCH appointment no id - FAIL", function (done) {
+        chai.request(apiUrl)
+            .patch(apiVersion + "/appointments/" + "123")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(patchAppointment))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.should.be.json;
+            res.body.should.have.property('message').eql("Invalid id");
+            done();
+            });
+    });
+
+    it("PATCH appointment no id - FAIL", function (done) {
+        chai.request(apiUrl)
+            .patch(apiVersion + "/appointments/" + "633c4c2b59ebc524fe92cec7")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(patchAppointment))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.should.be.json;
+            res.body.should.have.property('message').eql("No appointment with this id");
+            done();
+            });
+    });
+
+    it("PATCH appointment incorrect date format - FAIL", function (done) {
+        chai.request(apiUrl)
+            .patch(apiVersion + "/appointments/" + newAppointmentID)
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(patchAppointmentFail))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.should.be.json;
+            res.body.should.have.property('message').eql("Date is not in the correct format. Correct format is YYYY-MM-DD");
+            done();
+            });
+    });
+
+    it("PATCH appointment incorrect time format - FAIL", function (done) {
+        chai.request(apiUrl)
+            .patch(apiVersion + "/appointments/" + newAppointmentID)
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(patchAppointmentFail1))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.should.be.json;
+            res.body.should.have.property('message').eql("Time is not in the correct format. Correct format is HH:MM");
+            done();
+            });
+    });
+
+    it("PATCH appointment incorrect time format 2 - FAIL", function (done) {
+        chai.request(apiUrl)
+            .patch(apiVersion + "/appointments/" + newAppointmentID)
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(patchAppointmentFail2))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.should.be.json;
+            res.body.should.have.property('message').eql("Appointments can only be booked in 30 minute intervals.");
+            done();
+            });
+    });
+
+    it("PATCH appointment date in the past - FAIL", function (done) {
+        chai.request(apiUrl)
+            .patch(apiVersion + "/appointments/" + newAppointmentID)
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(patchAppointmentFail3))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.should.be.json;
+            res.body.should.have.property('message').eql("Invalid date");
+            done();
+            });
+    });
+
+    it("PATCH appointment - SUCCESS", function (done) {
+        chai.request(apiUrl)
+            .patch(apiVersion + "/appointments/" + newAppointmentID)
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(patchAppointment))
+            .end((err, res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.have.property('date').eql("2022-12-20");
+            res.body.should.have.property('time').eql("15:00");
+            Object.keys(res.body).length.should.be.eql(2);
+            done();
+            });
+    });
+    
+
     it("DELETE /appointments/:id", function (done) {
         chai.request(apiUrl)
             .delete(apiVersion + "/appointments/" + newAppointmentID)
@@ -421,6 +557,19 @@ describe('Endpoint tests', () => {
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
                 res.body.message.should.be.eql('No appointment with this id');
+                done();
+            });
+    })
+
+    it("DELETE /appointments/:id Cant delete appointment in the past", function (done) {
+        chai.request(apiUrl)
+            .delete(apiVersion + "/appointments/" + "634971e086674747e3514bef")
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Cannot delete appointments in the past.');
                 done();
             });
     })
@@ -562,6 +711,20 @@ describe('Endpoint tests', () => {
                 res.body.should.be.a('object');
                 res.body.should.have.property('message');
                 res.body.message.should.be.eql('Appointments can only be booked in 30 minute intervals.');
+                done();
+            });
+    });
+
+    it("POST /appointments time incorrect", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/appointments")
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(appointmentObjectFail10))
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('Time is not in the correct format. Correct format is HH:MM');
                 done();
             });
     });
@@ -829,4 +992,44 @@ describe('Endpoint tests', () => {
                 done();
             });
     });
+
+    it("GET /notifications Unauthorized - FAIL", function (done) {
+        chai.request(apiUrl)
+            .get(apiVersion + "/notifications")
+            .set("Content-type", "application/json")
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');//.eql('Invalid body');
+                res.body.message.should.be.eql("Unauthorized")
+                done();
+            });
+    });
+
+    // it("GET /notifications Unauthorized - FAIL", function (done) {
+    //     chai.request(apiUrl)
+    //         .get(apiVersion + "/notifications")
+    //         .set({ "Authorization": "Bearer" + tokenFail})
+    //         .end((err, res) => {
+    //             res.should.have.status(401);
+    //             res.should.be.json;
+    //             res.body.should.be.a('object');
+    //             res.body.should.have.property('message');
+    //             res.body.message.should.be.eql("Unauthorized")
+    //             done();
+    //         });
+    // });
+
+    // it("GET /notifications - Success", function (done) {
+    //     chai.request(apiUrl)
+    //         .get(apiVersion + "/notifications")
+    //         .set({"Authorization": "Bearer" + token})
+    //         .end((err, res) => {
+    //         res.should.have.status(200);
+    //         res.should.be.json;
+    //         done();
+    //         });
+    // });
 });
+
