@@ -1,4 +1,4 @@
-timport express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import path from 'path';
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');

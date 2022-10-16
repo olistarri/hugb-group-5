@@ -227,10 +227,40 @@ var loginObjectFail1 = {
     password: "ragnar1"
 };
 
-var tokenFail = "TokenUnauthorized";
+var holidayObj = {
+    barberid: "63260d8d6d67379920e9005e", 
+    date: "2022-11-20", 
+    userid: "63260c3a6d67379920e9005d"  
+};
+
+var holidayObjFail = {
+    barberid: "63260d8d6d67379920e9005e", 
+    date: "2022/12/12", 
+    userid: "63260c3a6d67379920e9005d"  
+};
+
+var holidayObjFail2 = {
+    barberid: "63260d8d6d67379920e9005e", 
+    date: "2022-12-12", 
+    userid: "63260c3a6d67379920e9005d"  
+};
+
+var holidayObjFail3 = {
+    barberid: "63260d8d6d67379920e9005e", 
+    date: "2021-12-12", 
+    userid: "63260c3a6d67379920e9005d"  
+};
+
+var holidayObjFail4 = {
+    barberid: "63260d8d6d67379920e9005e", 
+    date: "2021-11-21", 
+    userid: "6339bd012047a31aeab91c0a"  
+};
 
 var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im9saXN0YXJyaSIsInVzZXJpZCI6IjYzMjVkOTBmNDU4NGY3YTU3MTkyMTEzYyIsImlzQmFyYmVyIjpmYWxzZSwiaWF0IjoxNjY1OTQzNDgxLCJleHAiOjE2Njg1MzU0ODF9.BdF1acWXEBquj6XmhrG3c9XWzvVQSsYohhOcKVR8E-A";
 
+var holidayToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJhcmJlcjEwIiwidXNlcmlkIjoiNjMyNjBjM2E2ZDY3Mzc5OTIwZTkwMDVkIiwiaXNCYXJiZXIiOnRydWUsImJhcmJlcmlkIjoiNjMyNjBkOGQ2ZDY3Mzc5OTIwZTkwMDVlIiwiaWF0IjoxNjY1OTQ5NjkwLCJleHAiOjE2Njg1NDE2OTB9.A7pKLZo7tU7SeFILr0NSwGnQSqvumpzQd9gVOmoZm_o"
+var holidayTokenFail = "";
 
 describe('Endpoint tests', () => {
     beforeEach((done) => {
@@ -527,9 +557,12 @@ describe('Endpoint tests', () => {
             .end((err, res) => {
             res.should.have.status(200);
             res.should.be.json;
-            res.body.should.have.property('date').eql("2022-12-20");
-            res.body.should.have.property('time').eql("15:00");
-            Object.keys(res.body).length.should.be.eql(2);
+            res.body.should.have.property('acknowledged').eql(true);
+            res.body.should.have.property('modifiedCount').eql(1);
+            res.body.should.have.property('upsertedId').eql(null);
+            res.body.should.have.property('upsertedCount').eql(0);
+            res.body.should.have.property('matchedCount').eql(1);
+            Object.keys(res.body).length.should.be.eql(5);
             done();
             });
     });
@@ -987,49 +1020,10 @@ describe('Endpoint tests', () => {
                 res.should.have.status(400);
                 res.should.be.json;
                 res.body.should.be.a('object');
-                res.body.should.have.property('message');//.eql('Invalid body');
+                res.body.should.have.property('message');
                 res.body.message.should.be.eql("Invalid username or password.")
                 done();
             });
     });
-
-    it("GET /notifications Unauthorized - FAIL", function (done) {
-        chai.request(apiUrl)
-            .get(apiVersion + "/notifications")
-            .set("Content-type", "application/json")
-            .end((err, res) => {
-                res.should.have.status(401);
-                res.should.be.json;
-                res.body.should.be.a('object');
-                res.body.should.have.property('message');//.eql('Invalid body');
-                res.body.message.should.be.eql("Unauthorized")
-                done();
-            });
-    });
-
-    // it("GET /notifications Unauthorized - FAIL", function (done) {
-    //     chai.request(apiUrl)
-    //         .get(apiVersion + "/notifications")
-    //         .set({ "Authorization": "Bearer" + tokenFail})
-    //         .end((err, res) => {
-    //             res.should.have.status(401);
-    //             res.should.be.json;
-    //             res.body.should.be.a('object');
-    //             res.body.should.have.property('message');
-    //             res.body.message.should.be.eql("Unauthorized")
-    //             done();
-    //         });
-    // });
-
-    // it("GET /notifications - Success", function (done) {
-    //     chai.request(apiUrl)
-    //         .get(apiVersion + "/notifications")
-    //         .set({"Authorization": "Bearer" + token})
-    //         .end((err, res) => {
-    //         res.should.have.status(200);
-    //         res.should.be.json;
-    //         done();
-    //         });
-    // });
 });
 
