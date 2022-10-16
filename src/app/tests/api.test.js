@@ -1026,5 +1026,117 @@ describe('Endpoint tests', () => {
                 done();
             });
     });
+    // NOTIFICATION TESTS
+
+    it("GET /notifications Unauthorized - FAIL", function (done) {
+        chai.request(apiUrl)
+            .get(apiVersion + "/notifications")
+            .set("Content-type", "application/json")
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql("Unauthorized")
+                done();
+            });
+    });
+
+    it("GET /notifications - SUCCESS", function (done) {
+        chai.request(apiUrl)
+            .get(apiVersion + "/notifications")
+            .set({ "Authorization": `${token}` })
+            .end((err, res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            done();
+            });
+    });
+
+    // HOLIDAY ENDPOINT
+    it("POST /holidays no token - FAIL", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/holiday")
+            .end((err, res) => {
+            res.should.have.status(401);
+            res.should.be.json;
+            res.body.should.have.property('message');
+            res.body.message.should.be.eql('Invalid token')
+            done();
+            });
+    });
+
+    it("POST /holidays wrong date format - FAIL", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/holiday")
+            .set({ "Authorization": `${holidayToken}` })
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(holidayObjFail))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.body.should.have.property('message');
+            res.body.message.should.be.eql('Invalid date')
+            res.should.be.json;
+            done();
+            });
+    });
+
+    it("POST /holidays already exists - FAIL", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/holiday")
+            .set({ "Authorization": `${holidayToken}` })
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(holidayObjFail2))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.body.should.have.property('message');
+            res.body.message.should.be.eql('Holiday already exists')
+            res.should.be.json;
+            done();
+            });
+    });
+
+    it("POST /holidays date in past - FAIL", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/holiday")
+            .set({ "Authorization": `${holidayToken}` })
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(holidayObjFail3))
+            .end((err, res) => {
+            res.should.have.status(400);
+            res.body.should.have.property('message');
+            res.body.message.should.be.eql('Invalid date')
+            res.should.be.json;
+            done();
+            });
+    });
+
+    it("POST /holidays user not barber - FAIL", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/holiday")
+            .set({ "Authorization": `${holidayToken}` })
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(holidayObjFail4))
+            .end((err, res) => {
+            res.should.have.status(401);
+            res.body.should.have.property('message');
+            res.body.message.should.be.eql('Invalid token')
+            res.should.be.json;
+            done();
+            });
+    });
+
+    it("POST /holidays - SUCCESS", function (done) {
+        chai.request(apiUrl)
+            .post(apiVersion + "/holiday")
+            .set({ "Authorization": `${holidayToken}` })
+            .set("Content-type", "application/json")
+            .send(JSON.stringify(holidayObj))
+            .end((err, res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            done();
+            });
+    });
 });
 
