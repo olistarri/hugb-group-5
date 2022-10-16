@@ -420,7 +420,13 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
     return res.status(401).json({message: "Unauthorized"});
   }
   // check if the token is valid
-  const decoded = jwt.verify(token, JWT_SECRET);
+  //check if jwt is malformed
+  const decoded = jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return null;
+    }
+    return decoded;
+  });
   if (decoded == null) {
     return res.status(401).json({message: "Unauthorized"});
   }
