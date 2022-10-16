@@ -21,3 +21,33 @@ Barber getur cancelað tíma, þá fær notandinn valmöguleikann á að resched
 
 Bókun á að virka svona:
 Velja fyrst barber, svo service þar sem barberar geta átt mismunandi services, og mismunandi verð. 
+
+As usual the tasks were divided as such
+
+- UI: Andri and Kári
+- Backend: Sindri and Ólafur
+- Tests: Ragnar and Arnar
+
+
+# 14/10/2022 Work day
+Sindri started by adding rescheduleing functionality to the backend. This included making a PATCH endpoint for appointments, which would serve as a way to cancel and reschedule appointments.
+We then worked on the UI, changing the JS code to use the PATCH endpoint instead of the DELETE one.
+
+We then setup a notificaiton system which would show users notifications about cancelled appointments that needed to be rescheduled.
+
+
+# 15/10/2022 
+We added an endpoint and a database to keep track of barber holidays.
+
+We then implemented a backend check which doesn't allow bookings on those days.
+
+If a booking already exists on holidays, they will be marked for rescheduling.
+
+# 16/10/2022 Third group meeting in sprint 4
+We made some UI changes to history and the Barber Dashboard to accomodate the rescheduling of appointments and their cancellation.
+
+We also added a flag to each appointment that had been cancelled to allow users to see it more clearly.
+
+After all that we did a code review and implemented changes in response.
+
+
