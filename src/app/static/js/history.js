@@ -13,6 +13,11 @@ function history(){
     .then(response => response.json())
     .then(data => {
         var main_div = document.getElementById("main-div");
+        // sort data by date reverse  
+        /*data = data.sort(function(a,b){
+            return new Date(b.date) - new Date(a.date);
+        });*/     // Produces weird ordering in our data as we have multiple appointments per week
+        
         for (var i = 0; i < data.length; i++) {
             var appointments = data[i];
             const appointmentpassed = new Date(appointments["date"] + " " + appointments["time"]) < new Date();
@@ -40,15 +45,8 @@ function history(){
             var service_string = appointments["service"].split(",");
             serv.innerHTML = "Service: " + service_string[0];
             price.innerHTML = "Price: " + service_string[1] + " kr";
-            d.innerHTML = "Date: " + new Date(appointments["date"]).toString().split(' ').slice(0,4).join(' ');
+            d.innerHTML = "Date: " + new Date(appointments.date).toString().split(' ').slice(0,4).join(' ');
             t.innerHTML = " Time: " + appointments["time"];
-            if(appointments.needsRescheduling){
-                var notice = document.createElement("p");
-                notice.innerHTML = "Needs rescheduling";
-                notice.style.fontWeight = "bold";
-                notice.style.color = "red";
-                div_card_body.appendChild(notice);
-            }
             ul.appendChild(serv);
             ul.appendChild(linebreak_1);
             ul.appendChild(price);
@@ -57,12 +55,19 @@ function history(){
             ul.appendChild(linebreak_3);
             ul.appendChild(t);
             div_card_body.appendChild(ul);
+            if(appointments.needsRescheduling){
+                var notice = document.createElement("p");
+                notice.innerHTML = "Needs rescheduling";
+                notice.style.fontWeight = "bold";
+                notice.style.color = "red";
+                div_card_body.appendChild(notice);
+            }
 
             // ---------- Calculating difference until date
             var today = new Date();
-            var Difference_In_Time = (new Date(appointments["date"]).getTime() - today.getTime() ) / (1000*60*60*24);
+            var Difference_In_Time = (new Date(appointments.date).getTime() - today.getTime() ) / (1000*60*60*24);
             // This part of the code only runs if the days until the appointment are 0 or greater.
-            if (Difference_In_Time > -1 && !appointments["cancelled"]) {
+            if (Difference_In_Time > -1 && !appointments.cancelled && !appointments.needsRescheduling) {
                 var days_until_element = document.createElement("days_until_element");
                 days_until_element.innerHTML = 'Days until appointment: ' + Math.round(Difference_In_Time);
                 days_until_element.style.fontWeight = "bold";
