@@ -537,13 +537,13 @@ app.post(apiVersion + '/holiday', async (req: Request, res: Response) => {
     // add the holiday to the holidays collection
     if (req.body.date == now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
       const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, time: {$gt: now.getHours() + ":" + now.getMinutes()}, barberid: decoded.barberid}, {$set: {needsRescheduling: true}});
-      const Holidays:JSON = await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
+      await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
       return res.status(200).json(Appointments);
     }
     //if the date is in the future, cancel all appointments
     else if (req.body.date > now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate()) {
       const Appointments:JSON = await Database.collection("Appointments").updateMany({date: req.body.date, barberid: decoded.barberid}, {$set: {needsRescheduling: true}});
-      const Holidays:JSON = await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
+      await Database.collection("Daysoff").insertOne({date: req.body.date, barberid: decoded.barberid});
       return res.status(200).json(Appointments);
     }
     //if the date is in the past, return an error
