@@ -2,6 +2,20 @@ var datesSelection = document.getElementById("date-input"); // date selection in
 var availablePtag = document.getElementById("avail-dates"); // the p tag which displays the date selected
 var dateText = document.createElement("p");
 var timebox = document.getElementById("timebox");
+var appointment = document.getElementById("appointment");
+var token = localStorage.getItem("token");
+if(!token){
+    window.location.href = 'login.html';
+}
+else {
+    var decoded = parseJwt(token);
+}
+    if(decoded.isBarber){
+        appointment.textContent = "Select a new date and time for " + sessionStorage.getItem("user") + "'s appointment";
+    }else{
+        appointment.textContent = "Please select a new date for your " + sessionStorage.getItem("service") + " with " + sessionStorage.getItem("barbername");
+    }
+
 
 var availTimes = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", 
                 "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"];
@@ -26,14 +40,17 @@ function fixDate(date) {
 
 async function populateDateBox(date) {
     // if selected date is in the past, display error message
-    if (new Date(fixDate(date) + "  16:00" ) < new Date()) {
+    if (new Date(fixDate(date)) < new Date()) {
         dateText.innerHTML = "Please select a date in the future";
         availablePtag.appendChild(dateText);
         return;
     }
-    barberid = sessionStorage.getItem("barber");
+    let barberid = sessionStorage.getItem("barberid");
+    
     unavailAppointments = [];
-    console.log(date);
+    console.log(barberid);
+    if(barberid == "")
+        console.log("barberid is empty");
     await fetch('/api/v1/appointments?barberid=' + barberid + '&date=' + fixDate(date),{
         method: 'GET'})
     .then(response => response.json())
@@ -53,7 +70,6 @@ async function populateDateBox(date) {
         console.log(unavailAppointments);
         if(!timebox.hasChildNodes()){
             for (let i = 0; i < 15; i++) {
-                if(new Date(fixDate(date) + " " + availTimes[i]) > new Date()) {
                 var timebox_item = document.createElement("button");
                 timebox_item.classList.add("timebox-item");
                 timebox_item.innerHTML = availTimes[i];
@@ -65,7 +81,7 @@ async function populateDateBox(date) {
                 if (unavailAppointments.includes(availTimes[i])) {
                     timebox_item.disabled = true;
                 };
-            }
+        
             }
         }
     });
@@ -73,21 +89,13 @@ async function populateDateBox(date) {
 
 
 function choose_time_main(time) {
-    sessionStorage.setItem('time', JSON.stringify([datesSelection.value, time]))
     data = {
         "date": datesSelection.value,
         "time": time,
-        "userid": localStorage.getItem("userid"),
-        "barberid": sessionStorage.getItem("barber"),
-        "service": sessionStorage.getItem("service")
-
+        "needsRescheduling": false
     }
-    console.log(data);
-    if(localStorage.getItem("userid") == null || sessionStorage.getItem("barber") == null || sessionStorage.getItem("service") == null) {
-        window.location.href = "/index.html";
-    }
-    fetch('/api/v1/appointments', {
-        method: 'POST',
+    fetch('/api/v1/appointments/' + sessionStorage.getItem("appointment"), {
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'},
         body: JSON.stringify(data),
@@ -98,8 +106,25 @@ function choose_time_main(time) {
             alert(data["message"]);
         }
         else {
-            window.location.href = 'booking_confirm.html';
+            sessionStorage.removeItem("appointment");
+            sessionStorage.removeItem("barberid");
+            sessionStorage.removeItem("service");
+            sessionStorage.removeItem("barbername");
+            sessionStorage.removeItem("user");
+            if(decoded.isBarber)
+                window.location.href = 'barber_dashboard.html';
+            else
+                window.location.href = 'history.html';
         }
     });
 }
 
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+};

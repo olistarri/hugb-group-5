@@ -13,8 +13,14 @@ function history(){
     .then(response => response.json())
     .then(data => {
         var main_div = document.getElementById("main-div");
+        // sort data by date reverse  
+        /*data = data.sort(function(a,b){
+            return new Date(b.date) - new Date(a.date);
+        });*/     // Produces weird ordering in our data as we have multiple appointments per week
+        
         for (var i = 0; i < data.length; i++) {
             var appointments = data[i];
+            const appointmentpassed = new Date(appointments["date"] + " " + appointments["time"]) < new Date();
             var div = document.createElement("div");
             div.className = "col";
             var div_card = document.createElement("div");
@@ -39,9 +45,8 @@ function history(){
             var service_string = appointments["service"].split(",");
             serv.innerHTML = "Service: " + service_string[0];
             price.innerHTML = "Price: " + service_string[1] + " kr";
-            d.innerHTML = "Date: " + appointments["date"];
+            d.innerHTML = "Date: " + new Date(appointments.date).toString().split(' ').slice(0,4).join(' ');
             t.innerHTML = " Time: " + appointments["time"];
-            //li.innerHTML = appointments["description"] || "No description";
             ul.appendChild(serv);
             ul.appendChild(linebreak_1);
             ul.appendChild(price);
@@ -49,16 +54,65 @@ function history(){
             ul.appendChild(d);
             ul.appendChild(linebreak_3);
             ul.appendChild(t);
-            var button = document.createElement("button");
-            button.type = "button";
-            button.className = "w-100 btn btn-lg btn-outline-primary";
-            button.id = appointments._id;
-            button.innerHTML = "Cancel appointment";
-            button.addEventListener("click", function(event) {
-                onbuttonclick(event.target.id);
-            });
             div_card_body.appendChild(ul);
-            div_card_body.appendChild(button);
+            if(appointments.needsRescheduling){
+                var notice = document.createElement("p");
+                notice.innerHTML = "Needs rescheduling";
+                notice.style.fontWeight = "bold";
+                notice.style.color = "red";
+                div_card_body.appendChild(notice);
+            }
+
+            // ---------- Calculating difference until date
+            var today = new Date();
+            var Difference_In_Time = (new Date(appointments.date).getTime() - today.getTime() ) / (1000*60*60*24);
+            // This part of the code only runs if the days until the appointment are 0 or greater.
+            if (Difference_In_Time > -1 && !appointments.cancelled && !appointments.needsRescheduling) {
+                var days_until_element = document.createElement("days_until_element");
+                days_until_element.innerHTML = 'Days until appointment: ' + Math.round(Difference_In_Time);
+                days_until_element.style.fontWeight = "bold";
+                div_card_body.appendChild(days_until_element);
+                linebreak_days_until = document.createElement("br");
+                div_card_body.appendChild(linebreak_days_until);
+
+            }
+
+            if(appointmentpassed){
+                var passed_element = document.createElement("passed_element");
+                passed_element.innerHTML = "Passed";
+                passed_element.style.fontWeight = "bold";
+                div_card_body.appendChild(passed_element);
+
+            }
+            else if(!appointments["cancelled"] && !appointmentpassed){
+                line_break_cancel = document.createElement("br");
+                div_card_body.appendChild(line_break_cancel);
+                var cancelButton = document.createElement("button");
+                cancelButton.type = "button";
+                cancelButton.className = "w-100 btn btn-lg btn-outline-primary";
+                cancelButton.style.marginBottom = "10px";
+                cancelButton.id = appointments._id;
+                cancelButton.innerHTML = "Cancel appointment";
+                cancelButton.addEventListener("click", function(event) {
+                    cancelAppointment(event.target.id);
+                });
+                div_card_body.appendChild(cancelButton);
+                var rescheduleButton = document.createElement("button");
+                rescheduleButton.type = "button";
+                rescheduleButton.className = "w-100 btn btn-lg btn-outline-primary";
+                rescheduleButton.id = appointments._id;
+                rescheduleButton.innerHTML = "Reschedule appointment";
+                rescheduleButton.addEventListener("click", function(event) {
+                    rescheduleAppointment(event.target.id, appointments.barberid, appointments.service, appointments.barber, appointments.user);
+                });
+                div_card_body.appendChild(rescheduleButton);
+            }
+            else{
+                var cancelled = document.createElement("p");
+                cancelled.innerHTML = "Cancelled";
+                cancelled.style.fontWeight = "bold";
+                div_card_body.appendChild(cancelled);
+            }
             div_card.appendChild(div_card_header);
             div_card.appendChild(div_card_body);
             div.appendChild(div_card);
@@ -67,30 +121,49 @@ function history(){
         }
         
     });
-            populate_navbar();
+    populate_navbar();
+
 }
 
 
-function onbuttonclick(idname) {
-    // Implement delete functionality
-    // send delete request to server
+function cancelAppointment(idname) {
+    // cancelled = true in body
+    if (confirm("Are you sure you want to cancel this appointment?") == true) {
     fetch("/api/v1/appointments/"+idname, {
-        method: "DELETE",
-        headers: {"Content-Type": "application/json"},
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"
+    },
+        body: JSON.stringify( {cancelled: true, needsRescheduling:false} )
         })
     .then(response => response.json())
-    .then(data => {
-       // remove card from appointments
-         var card = document.getElementById(idname).parentElement.parentElement.parentElement;
-            card.remove();
+    .then(() => {
+       // remove buttons and add cancelled
+       var cancelled = document.createElement("p");
+       cancelled.innerHTML = "Cancelled";
+       cancelled.style.fontWeight = "bold";
+       var element = document.getElementById(idname).parentElement;
+       console.log(element)
+       document.getElementById(idname).parentElement.removeChild(document.getElementById(idname));
+       document.getElementById(idname).parentElement.removeChild(document.getElementById(idname));
+       element.appendChild(cancelled);
+       console.log(element)
             
     });
-
-
-
     console.log("I have deleted: " + idname);
+    }
+}
 
-    //window.location.href = "/choose_time.html";
+function rescheduleAppointment(idname, barberid, service,barbername,user) {
+    //  implement page to find new time and date
+    // that page should send a request with the following format:
+    // {needsRescheduling:false, date: newdate, time: newtime}
+    sessionStorage.setItem("appointment", idname);
+    sessionStorage.setItem("barberid", barberid);
+    sessionStorage.setItem("service", service);
+    sessionStorage.setItem("barbername", barbername);
+    sessionStorage.setItem("user", user);
+
+    window.location.href = "/reschedule.html";
 }
 
 window.onload = history;
