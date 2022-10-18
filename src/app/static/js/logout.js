@@ -1,6 +1,7 @@
 function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("userid");
+    localStorage.removeItem("barberid");
     sessionStorage.removeItem("service");
     sessionStorage.removeItem("barber");
     sessionStorage.removeItem("time");
