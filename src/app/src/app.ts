@@ -505,10 +505,10 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
   // if decoded.isBarber is false, then we need to check if the user has any appointments with the flag set to true
   let appointments = null;
   if (decoded.isBarber) {
-    appointments = await Database.collection("Appointments").find({barberid: decoded.barberid, $or: [{cancelled: true}, {needsRescheduling: true}]}).toArray();
+    appointments = await Database.collection("Appointments").find({barberid: decoded.barberid, $or: [{needsRescheduling: true}]}).toArray();
   }
   else {
-    appointments = await Database.collection("Appointments").find({userid: decoded.userid, $or: [{cancelled: true}, {needsRescheduling: true}]}).toArray();
+    appointments = await Database.collection("Appointments").find({userid: decoded.userid, $or: [{needsRescheduling: true}]}).toArray();
   }
   if (appointments == null) {
     return res.status(200).json([]);
