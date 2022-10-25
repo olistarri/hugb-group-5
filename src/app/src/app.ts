@@ -522,7 +522,12 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
     barberids.push(appointment.barberid);
     userids.push(appointment.userid);
   });
-  const barbers = await Database.collection("Barbers").find({_id:  { $in: barberids.map((id: any) => mongodb.ObjectId(id)) }}).toArray();
+  //get all barbers and join user.username from collection "Users" on barber.username and add user.name to barber as name aggregate
+  const barbers = await Database.collection("Barbers").aggregate([
+    {$lookup: {from: "Users", localField: "username", foreignField: "username", as: "user"}},
+    {$addFields: {name: "$user.name"}}
+  ]).toArray();
+  console.log(barbers);
   const users = await Database.collection("Users").find({}).toArray();
   
   
@@ -548,11 +553,7 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
         barbers.filter(barber => {
           if (barber._id == appointments[i].barberid) {
             //find user with same username as barber
-            users.filter(user => {
-              if (user.username == barber.username) {
-                name = user.name;
-              }
-            });
+            name = barber.name;
           }
         });
       }
