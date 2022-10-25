@@ -527,7 +527,6 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
     {$lookup: {from: "Users", localField: "username", foreignField: "username", as: "user"}},
     {$addFields: {name: "$user.name"}}
   ]).toArray();
-  console.log(barbers);
   const users = await Database.collection("Users").find({}).toArray();
   
   
