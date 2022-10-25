@@ -5,6 +5,7 @@ Ragnar var valinn af handahófi sem scrum master.
 Í þessum spretti ætlum við að laga villur sem eru til staðar.
 * Láta cancelled notificationið hverfa ef að user er búinn að opna history.
 * Sleppa "canceled" notification ef að notandi cancelar.
+* Past tímar aftast í listanum.
 
 Mögulegir fídusar:
 * Sýna barbers upplýsingar um notenda.
