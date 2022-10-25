@@ -13,6 +13,9 @@ function history(){
     .then(response => response.json())
     .then(data => {
         var main_div = document.getElementById("main-div");
+        var needsRescList = [];
+        var cancelledList = [];
+        var upcomingList = [];
         // sort data by date reverse  
         /*data = data.sort(function(a,b){
             return new Date(b.date) - new Date(a.date);
@@ -113,13 +116,31 @@ function history(){
                 cancelled.style.fontWeight = "bold";
                 div_card_body.appendChild(cancelled);
             }
+            
             div_card.appendChild(div_card_header);
             div_card.appendChild(div_card_body);
             div.appendChild(div_card);
-            main_div.appendChild(div);
+            if(appointments.needsRescheduling){
+                needsRescList.push(div);
+            }
+            else if(appointments.cancelled || appointmentpassed){
+                cancelledList.push(div);
+            }
+            else{
+                upcomingList.push(div);
+            }
+
             
         }
-        
+        for (var i = 0; i < needsRescList.length; i++) {
+            main_div.appendChild(needsRescList[i]);
+        }
+        for (var i = 0; i < upcomingList.length; i++) {
+            main_div.appendChild(upcomingList[i]);
+        }
+        for (var i = 0; i < cancelledList.length; i++) {
+            main_div.appendChild(cancelledList[i]);
+        }
     });
     populate_navbar();
 
