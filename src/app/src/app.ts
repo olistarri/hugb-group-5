@@ -73,6 +73,50 @@ app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
 
 
 //Get all appointments
+/**
+ * This endpoint returns all appointments
+ * @api {get} /api/v1/appointments Get all appointments
+ * 
+ * @apiName GetAppointments
+ * @apiGroup Appointments
+ * @apiVersion 1.0.0
+ * @apiSuccess {Object[]} appointments List of appointments
+ * @apiSuccess {String} appointments._id MongoDB Id of the appointment
+ * @apiSuccess {String} appointments.date Date of the appointment
+ * @apiSuccess {String} appointments.time Time of the appointment
+ * @apiSuccess {String} appointments.userid MongoDB UserID of the appointment
+ * @apiSuccess {String} appointments.barberid MongoDB BarberID of the appointment
+ * @apiSuccess {String} appointments.service Service and price of the appointment
+ * @apiSuccess {Boolean} appointments.cancelled If appointment is canceled, this is true. Field added when appointment is canceled by user.
+ * @apiSuccess {Boolean} appointments.needsRescheduling If appointment needs rescheduling, this is true. Field added when appointment is canceled by barber.
+ * query params 
+ * @apiParam {String} date Returns all appointments on the given date
+ * @apiParam {String} userid Returns all appointments for this user 
+ * @apiParam {String} barberid Returns all appointments for this barber
+ * @apiparam {String} id Returns the appointment with the given id
+ * @apiSuccessExample {json} Success-Response:
+ * [
+    {
+        "_id": "633c4c2b59ebc524fe92cec6",
+        "date": "2022-11-04",
+        "time": "14:30",
+        "userid": "6325d90f4584f7a57192113c",
+        "barberid": "6325eb956aec9d26d37d7723",
+        "service": "Haircut,5999",
+        "cancelled": true,
+        "needsRescheduling": false
+    },
+    {
+        "_id": "634971e086674747e3514bef",
+        "date": "2022-10-14",
+        "time": "16:30",
+        "userid": "6325d90f4584f7a57192113c",
+        "barberid": "63260d8d6d67379920e9005e",
+        "service": "Haircut,5999"
+    }
+  ]  
+ * 
+ */
 app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
   let query = {};
   //append query params to query
@@ -133,6 +177,32 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
 });
 
 //get a single appointment
+/**
+ * This endpoint returns a single appointment
+ * @api {get} /api/v1/appointments/:appointmentid Get a single appointment
+ * @apiName GetAppointment
+ * @apiGroup Appointments
+ * @apiVersion 1.0.0
+ * @apiParam {String} appointmentid MongoDB Id of the appointment
+ * @apiSuccess {String} _id MongoDB Id of the appointment
+ * @apiSuccess {String} date Date of the appointment
+ * @apiSuccess {String} time Time of the appointment
+ * @apiSuccess {String} userid MongoDB UserID of the appointment
+ * @apiSuccess {String} barberid MongoDB BarberID of the appointment
+ * @apiSuccess {String} service Service and price of the appointment
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTP/1.1 200 OK
+ * {
+    "_id": "633c4c2b59ebc524fe92cec6",
+    "date": "2022-11-04",
+    "time": "14:30",
+    "userid": "6325d90f4584f7a57192113c",
+    "barberid": "6325eb956aec9d26d37d7723",
+    "service": "Haircut,5999",
+    "cancelled": true
+}
+*/
+
 app.get(apiVersion + '/appointments/:appointmentid', async (req: Request, res: Response) => {
   if (req.params.appointmentid) {
     if(!mongodb.ObjectID.isValid(req.params.appointmentid)){
