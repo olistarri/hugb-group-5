@@ -1,4 +1,4 @@
-# 18/10/22 First group meeting in sprint 4
+# 18/10/22 First group meeting in sprint 5
 
 Ragnar was chosen as scrum master.
 
@@ -18,3 +18,13 @@ Sindri and Ólafur will create backend documentation.
 Andri and Kári will create UI documentation.
 
 We will work on the video together.
+
+# 25/10/22 First group meeting in sprint 5
+
+There is not much to discuss, since everything is basically ready. 
+
+The script for the video is ready, and Andri and Kári will finish it later in the week. 
+
+The others are focusing on finishing the documentation, both for the backend and for the tests.
+
+Everything should be ready by thursday/friday.
