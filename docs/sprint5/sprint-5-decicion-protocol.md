@@ -1,18 +1,20 @@
 # 18/10/22 First group meeting in sprint 4
 
-Ragnar var valinn af handahófi sem scrum master.
+Ragnar was chosen as scrum master.
 
-Í þessum spretti ætlum við að laga villur sem eru til staðar.
-* Láta cancelled notificationið hverfa ef að user er búinn að opna history.
-* Sleppa "canceled" notification ef að notandi cancelar.
-* Past tímar aftast í listanum.
+I this sprint we will focus on fixing bugs.
+* Make cancel notification dissappear when user reshedules or accepts to cancel.
+* Remove cancel notification if the user cancels.
+* Past times should be at the back of the list. 
 
-Mögulegir fídusar:
-* Sýna barbers upplýsingar um notenda.
+Possible new feature if we have time:
+* Show barbers information about users.
 
 Einnig þarf að gera documentation, myndband og loka prófanir.
+We also have to create documentation, a video and final tests.
 
-Ragnar og Arnar ætla að gera loka prófanir.
-Sindri og Ólafur ætla að gera bakenda documentation.
-Andri og Kári ætla að gera UI documentation.
-Við munum gera myndbandið í sameiningu.
+Ragnar and Arnar will do tests
+Sindri and Ólafur will create backend documentation.
+Andri and Kári will create UI documentation.
+
+We will work on the video together.
