@@ -141,10 +141,10 @@ app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
  * @apiSuccess {Boolean} [appointments.cancelled] If appointment is canceled, this is true. Field added when appointment is canceled by user.
  * @apiSuccess {Boolean} [appointments.needsRescheduling] If appointment needs rescheduling, this is true. Field added when appointment is canceled by barber.
  * query params 
- * @apiBody {String} [date] Returns all appointments on the given date
- * @apiBody {String} [userid] Returns all appointments for this user 
- * @apiBody {String} [barberid] Returns all appointments for this barber
- * @apiBody {String} [id] Returns the appointment with the given id
+ * @apiQuery {String} [date] Returns all appointments on the given date
+ * @apiQuery {String} [userid] Returns all appointments for this user 
+ * @apiQuery {String} [barberid] Returns all appointments for this barber
+ * @apiQuery {String} [id] Returns the appointment with the given id
  * @apiSuccessExample {json} Success:
  * [
     {
@@ -979,7 +979,7 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
 });
   
 /** This endpoint handles modifications to appointments, such as rescheduling and cancelling.
- * @api {put} /api/v1/appointments/:id Modify an appointment
+ * @api {patch} /api/v1/appointments/:id Modify an appointment
  * @apiName ModifyAppointment
  * @apiGroup Appointments
  * @apiVersion 1.0.0
