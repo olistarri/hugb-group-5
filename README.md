@@ -4,10 +4,15 @@
 Barber Inc Booking System is a booking system for a barber shop, where clients can book their haircuts and shaves!
 
 ## Features
-* A user can book their appointment.
-* A user can see all of their previous appointments.
-* A user can choose a barber, as well as their service and see the price of the haircut.
-* A user can create an account, and log in.
+* Users can book their appointment.
+* Users can see all of their previous appointments.
+* Barbers can see their upcoming appointments
+* Users can choose a barber, as well as their service and see the price of the haircut.
+* Users can create an account, and log in.
+* Users can cancel and reschedule their appointments
+* Barbers can cancel appointments 
+* Barbers can flag a day as a day off (sick day or holiday), this cancels all appointments on that day.
+* Users get a notification if the barber cancels their appointments, and will be prompted to reschedule or cancel.
 
 # Installation
 ## NodeJs
