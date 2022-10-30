@@ -28,3 +28,8 @@ The script for the video is ready, and Andri and Kári will finish it later in t
 The others are focusing on finishing the documentation, both for the backend and for the tests.
 
 Everything should be ready by thursday/friday.
+
+# 30/10/22 Endpoint documentation
+Endpoint documentation was finished today.
+
+Examples of successful requests as well as requests that resulted in errors were added to show functionality.
