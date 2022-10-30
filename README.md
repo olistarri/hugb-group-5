@@ -53,3 +53,7 @@ To generate a new coverage report (should not be nessecary), in the terminal run
 ```bash
 npm run coverage
 ```
+# Documentation
+After the server has been started, the documentation can be accessed via the navbar.
+
+It can also be accessed at http://localhost:3000/api
