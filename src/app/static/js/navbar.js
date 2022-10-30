@@ -44,8 +44,9 @@ function populate_navbar() {
     else {
         rightdiv.appendChild(CreateLoginLogoutButton("Login/Register", "/login.html"));
     }
-    if (window.location.pathname == "/index.html") {
+    if (window.location.pathname == "/index.html" || window.location.pathname == "/") {
         leftdiv.appendChild(CreateNavBarItem("Coverage Report", "coverage/index.html"));
+        leftdiv.appendChild(CreateNavBarItem("API Docs", "apidocs/index.html"));
     }
 };
 

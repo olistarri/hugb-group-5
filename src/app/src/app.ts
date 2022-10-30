@@ -9,22 +9,6 @@ const saltRounds = 10;
 const port = 3000;
 const JWT_SECRET = "VerySecretStringDoNotShare";
 
-const services = [
-  {
-    name: 'Haircut',
-    price: 5999,
-  },
-  {
-    name: 'Shave',
-    price: 2999,
-  },
-  {
-
-    name: 'Colouring',
-    price: 10999,
-  }
-];
-
 app.use(express.static(path.join(__dirname, '/../pages/')));
 app.use(express.static(path.join(__dirname, '/../static/')));
 app.use(express.static(path.join(__dirname, '/../')));
@@ -39,6 +23,44 @@ const Database = client.db("BarberShop")
 const apiVersion = "/api/v1"
 
 //get all users
+/**
+ * This endpoint returns all users in the database with an optional argument to filter by name
+ * @api {get} /api/v1/users Get all users
+ * @apiName getAllUsers
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiBody {String} [name] Get user by name
+ * @apiSuccess {Object[]} [users] Array of users
+ * @apiSuccess {String} [_id] The user's id
+ * @apiSuccess {String} [username] The user's username
+ * @apiSuccess {String} [email] The user's email
+ * @apiSuccess {String} [name] The user's name
+ * @apiSuccess {String} [phone] The user's phone
+ * @apiSuccessExample {json} Success:
+ * [
+    {
+        "_id": "6325d8ce4584f7a57192113b",
+        "username": "Sindri",
+        "email": "sindri@sindri.is",
+        "name": "Sindri Thor",
+        "phone": "5812345"
+    },
+    {
+        "_id": "6325d90f4584f7a57192113c",
+        "username": "olistarri",
+        "email": "olistarri@olistarri.is",
+        "name": "Ólafur Starri Páls",
+        "phone": "5812345"
+    },
+    {
+        "_id": "6325d93d4584f7a57192113d",
+        "username": "barber1",
+        "email": "barber@barbersinc.com",
+        "name": "Maggi Klippari",
+        "phone": "8885555"
+    },
+ * 
+ */
 app.get(apiVersion + '/users', async (req: Request, res: Response) => {
   if (req.query.name) {
     //find all users whose name contains name 
@@ -50,11 +72,40 @@ app.get(apiVersion + '/users', async (req: Request, res: Response) => {
     return res.send(users);
   }
 
-  const Users:JSON = await Database.collection("Users").find({}).toArray();
+  const Users = await Database.collection("Users").find({}).toArray();
+  Users.forEach((user:any) => {
+    delete user.password;     // Remove all passwords from the users
+  });
   return res.status(200).json(Users);
 });
 
 //get a single user
+/**
+ * This endpoint returns a single user
+ * @api {get} /api/v1/users/:userid Get a single user
+ * @apiName getUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiParam {String} userid Id of the user to get
+ * @apiSuccess {String} [_id] The user's id
+ * @apiSuccess {String} [username] The user's username
+ * @apiSuccess {String} [name] The user's name
+ * @apiSuccess {Boolean} [email] The user's email
+ * @apiSuccess {Boolean} [ohone] The user's phone number
+ * query params 
+ * @apiSuccessExample {json} Success:
+ *{
+    "_id": "635e8d35ea58f2429520cea6",
+    "username": "test",
+    "name": "notandi1",
+    "email": "notandi1@ru.is",
+    "phone": "5885522"
+}
+  * @apiErrorExample {json} Invalid ID error:
+  * {
+  *  "error": "Invalid user id"
+ *  }
+ */
 app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
   if (req.params.userid) {
     if(req.params.userid.length != 24 || !mongodb.ObjectID.isValid(req.params.userid)){
@@ -73,6 +124,50 @@ app.get(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
 
 
 //Get all appointments
+/**
+ * This endpoint returns all appointments
+ * @api {get} /api/v1/appointments Get all appointments
+ * 
+ * @apiName GetAppointments
+ * @apiGroup Appointments
+ * @apiVersion 1.0.0
+ * @apiSuccess {Object[]} [appointments] List of appointments
+ * @apiSuccess {String} [appointments._id] MongoDB Id of the appointment
+ * @apiSuccess {String} [appointments.date] Date of the appointment
+ * @apiSuccess {String} [appointments.time] Time of the appointment
+ * @apiSuccess {String} [appointments.userid] MongoDB UserID of the appointment
+ * @apiSuccess {String} [appointments.barberid] MongoDB BarberID of the appointment
+ * @apiSuccess {String} [appointments.service] Service and price of the appointment
+ * @apiSuccess {Boolean} [appointments.cancelled] If appointment is canceled, this is true. Field added when appointment is canceled by user.
+ * @apiSuccess {Boolean} [appointments.needsRescheduling] If appointment needs rescheduling, this is true. Field added when appointment is canceled by barber.
+ * query params 
+ * @apiQuery {String} [date] Returns all appointments on the given date
+ * @apiQuery {String} [userid] Returns all appointments for this user 
+ * @apiQuery {String} [barberid] Returns all appointments for this barber
+ * @apiQuery {String} [id] Returns the appointment with the given id
+ * @apiSuccessExample {json} Success:
+ * [
+    {
+        "_id": "633c4c2b59ebc524fe92cec6",
+        "date": "2022-11-04",
+        "time": "14:30",
+        "userid": "6325d90f4584f7a57192113c",
+        "barberid": "6325eb956aec9d26d37d7723",
+        "service": "Haircut,5999",
+        "cancelled": true,
+        "needsRescheduling": false
+    },
+    {
+        "_id": "634971e086674747e3514bef",
+        "date": "2022-10-14",
+        "time": "16:30",
+        "userid": "6325d90f4584f7a57192113c",
+        "barberid": "63260d8d6d67379920e9005e",
+        "service": "Haircut,5999"
+    }
+  ]  
+ *
+ */
 app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
   let query = {};
   //append query params to query
@@ -133,6 +228,35 @@ app.get(apiVersion + '/appointments', async (req: Request, res: Response) => {
 });
 
 //get a single appointment
+/**
+ * This endpoint returns a single appointment
+ * @api {get} /api/v1/appointments/:appointmentid Get a single appointment
+ * @apiName GetAppointment
+ * @apiGroup Appointments
+ * @apiVersion 1.0.0
+ * @apiParam {String} appointmentid MongoDB Id of the appointment
+ * @apiSuccess {String} [_id] MongoDB Id of the appointment
+ * @apiSuccess {String} [date] Date of the appointment
+ * @apiSuccess {String} [time] Time of the appointment
+ * @apiSuccess {String} [userid] MongoDB UserID of the appointment
+ * @apiSuccess {String} [barberid] MongoDB BarberID of the appointment
+ * @apiSuccess {String} [service] Service and price of the appointment
+ * @apiSuccessExample {json} Success:
+ * {
+    "_id": "633c4c2b59ebc524fe92cec6",
+    "date": "2022-11-04",
+    "time": "14:30",
+    "userid": "6325d90f4584f7a57192113c",
+    "barberid": "6325eb956aec9d26d37d7723",
+    "service": "Haircut,5999",
+    "cancelled": true
+}
+@apiErrorExample {json} Invalid ID:
+  * {
+  *   "message": "Invalid appointment id"
+  * }
+*/
+
 app.get(apiVersion + '/appointments/:appointmentid', async (req: Request, res: Response) => {
   if (req.params.appointmentid) {
     if(!mongodb.ObjectID.isValid(req.params.appointmentid)){
@@ -144,7 +268,40 @@ app.get(apiVersion + '/appointments/:appointmentid', async (req: Request, res: R
 });
 
 
-
+/**
+ * This endpoint returns all barbers
+ * @api {get} /api/v1/barbers Get all barbers
+ * @apiName GetBarbers
+ * @apiGroup Barbers
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} [_id] MongoDB Id of the barber
+ * @apiSuccess {String} [username] Username of the barber
+ * @apiSuccess {String} [name] The name of the barber
+ * @apiSuccess {Object[]} [services] Array of services and prices for the barber
+ * @apiSuccess {String} [name] The name of the service offerend
+ * @apiSuccess {String} [price] The price of the service
+ * @apiSuccess {String} [description] A description of the service
+ * @apiSuccessExample {json} Success:
+ * [
+    {
+        "_id": "6325eb956aec9d26d37d7723",
+        "username": "barber1",
+        "name": "Maggi Klippari"
+        "services": [
+            {
+                "name": "Haircut",
+                "price": "4999",
+                "description": "A nice enjoyable haircut and wash. "
+            },
+            {
+                "name": "Shave",
+                "price": "1499",
+                "description": "A straight razor shave"
+            }
+        ],
+    }
+]
+*/
 app.get(apiVersion + '/barbers', async (req: Request, res: Response) => {
   //join barber.username on user.username, add user.name to barbers
   const barbers = await Database.collection("Barbers").find({}).toArray();
@@ -157,7 +314,39 @@ app.get(apiVersion + '/barbers', async (req: Request, res: Response) => {
   
 });
 
-//get a single barber
+/**
+ * This endpoint returns a single barbers
+ * @api {get} /api/v1/barbers/:barberid Get a barber
+ * @apiName GetSingleBarber
+ * @apiGroup Barbers
+ * @apiVersion 1.0.0
+ * @apiParam {String} barberid MongoDB Id of the barber
+ * @apiSuccess {String} [_id] MongoDB Id of the barber
+ * @apiSuccess {String} [username] Username of the barber
+ * @apiSuccess {String} [name] The name of the barber
+ * @apiSuccess {Object[]} [services] Array of services and prices for the barber
+ * @apiSuccess {String} [services.name] The name of the service offerend
+ * @apiSuccess {String} [services.price] The price of the service
+ * @apiSuccess {String} [services.description] A description of the service
+ * @apiSuccessExample {json} Success:
+ *   {
+        "_id": "6325eb956aec9d26d37d7723",
+        "username": "barber1",
+        "name": "Maggi Klippari"
+        "services": [
+            {
+                "name": "Haircut",
+                "price": "4999",
+                "description": "A nice enjoyable haircut and wash. "
+            },
+            {
+                "name": "Shave",
+                "price": "1499",
+                "description": "A straight razor shave"
+            }
+        ],
+    }
+*/
 app.get(apiVersion + '/barbers/:barberid', async (req: Request, res: Response) => {
   if (req.params.barberid) {
     const barber = await Database.collection("Barbers").findOne({ _id: mongodb.ObjectId(req.params.barberid) });
@@ -167,11 +356,45 @@ app.get(apiVersion + '/barbers/:barberid', async (req: Request, res: Response) =
   }
 });
 
-app.get(apiVersion + '/services', async (req: Request, res: Response) => {
-  return res.status(200).json(services);
-});
 
 //Post endpoint for users
+/**
+ * This endpoint creates a new user
+ * @api {post} /api/v1/users Create a new user
+ * @apiName CreateUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiBody {String} username The new user's username
+ * @apiBody {String} name  The new user's full name
+ * @apiBody {String} email The new user's email
+ * @apiBody {String} password The new user's password
+ * @apiBody {String} phone The new user's phone number
+ * @apiSuccess {Boolean} [acknowledged] True if user creation successful 
+ * @apiSuccess {String} [insertedId] MongoDB Id of the new user
+ * @apiSuccess {String} [token] JWT token for the new user for automatic login after registration 
+ * @apiSuccessExample {json} Success:
+ * {
+    "acknowledged": true,
+    "insertedId": "635e8d35ea58f2429520cea6",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJ1c2VyaWQiOiI2MzVlOGQzNWVhNThmMjQyOTUyMGNlYTYiLCJpYXQiOjE2NjcxNDA5MTcsImV4cCI6MTY2OTczMjkxN30.xpInW58ecX0zcnD2CRUqwp5PSLpEdPcnv8kF7zxpGlM"
+}
+@apiErrorExample {json} Body missing error:
+  * {
+    "message": "Invalid body"
+  }
+@apiErrorExample {json} Username taken error:
+  * {
+    "message": "Username already exists"
+  }
+@apiErrorExample {json} Missing field error:
+  * {
+    "message": "Bad request. Request needs to contain name, username, email, password and phone."
+  }
+@apiErrorExample {json} Invalid field error:
+  * {
+    "message": "Bad request. Request needs to contain name, username, email, password and phone, cannot be empty."
+  }
+*/
 app.post(apiVersion + '/users', async (req: Request, res: Response) => {
   //check if body is not null
   //empty json object
@@ -204,6 +427,46 @@ app.post(apiVersion + '/users', async (req: Request, res: Response) => {
 });
 
 //Patch endpoint for users
+/**
+ * This endpoint creates a new user
+ * @api {patch} /api/v1/users Edit a user's information
+ * @apiName EditUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiBody {String} [name]  The user's new full name
+ * @apiBody {String} [email] The user's new email
+ * @apiBody {String} [phone] The new user's new phone number
+ * @apiSuccess {Boolean} [acknowledged] True if user creation successful 
+ * @apiSuccess {Integer} [modifiedCount] Should be 1 if user was updated
+ * @apiSuccess {String} [usertedId] Should be null if user was updated
+ * @apiSuccess {Integer} [upsertedCount] Should be 0 if user was updated
+ * @apiSuccess {Integer} [matchedCount] Should be 1 if user was updated
+ * @apiSuccessExample {json} Success:
+ * {
+    "acknowledged": true,
+    "modifiedCount": 1,
+    "upsertedId": null,
+    "upsertedCount": 0,
+    "matchedCount": 1
+}
+* @apiErrorExample {json} User with userID not found:
+* {
+    "message": "User does not exist."
+}
+* @apiErrorExample {json} Request body did not contain any fields to update:
+* {
+    "message": "Bad request. Request needs to contain name, email or phone."
+}
+* @apiErrorExample {json} userID is invalid:
+* {
+    "message": "Invalid user id."
+}
+* @apiErrorExample {json} Body is empty:
+* {
+    "message": "Invalid body."
+}
+
+*/
 app.patch(apiVersion + '/users/:userid', async (req: Request, res: Response) => {
   //check if body is not null
   //empty json object
@@ -212,7 +475,7 @@ app.patch(apiVersion + '/users/:userid', async (req: Request, res: Response) => 
   }
   //body needs at least one of the following fields
   if (req.body.name == null && req.body.email == null && req.body.phone == null) {
-    return res.status(400).json({message: "Bad request. Request needs to contain name, email and phone."});
+    return res.status(400).json({message: "Bad request. Request needs to contain name, email or phone."});
   }
   //check if userid is valid
   if(!mongodb.ObjectID.isValid(req.params.userid)){
@@ -240,6 +503,52 @@ app.patch(apiVersion + '/users/:userid', async (req: Request, res: Response) => 
 
 
 //Post endpoint for appointments
+/**
+ * This endpoint creates a new appointment. Appointments can only be booked every 30 minutes.
+ * @api {post} /api/v1/appointments Create a new appointment
+ * @apiName CreateAppointment
+ * @apiGroup Appointments
+ * @apiVersion 1.0.0
+ * @apiBody {String} barberid  The barber with whom the appointment is with
+ * @apiBody {String} userid The user who is making the appointment
+ * @apiBody {String} date The date of the appointment
+ * @apiBody {String} time The time of the appointment
+ * @apiBody {String} service The service the user is getting at the appointment
+ * @apiSuccess {String} [id] The id of the appointment
+ * @apiSuccessExample {json} Success:
+ * {
+    "acknowledged": true,
+    "insertedId": "635ea1203643dd07a1bb9303"
+  }
+* @apiErrorExample {json} Barber with invalid barberID:
+* {
+    "message": "Barber does not exist."
+}
+* @apiErrorExample {json} User with invalid userID:
+* {
+    "message": "User does not exist."
+}
+* @apiErrorExample {json} Request body did not contain all required fields:
+* {
+  "message": "Bad request. Request needs to contain barber, date, time, userid and service."
+}
+* @apiErrorExample {json} Time is not in the correct format:
+* {
+  "message": "Time is not in the correct format. Correct format is HH:MM"
+}
+* @apiErrorExample {json} Date is not in the correct format:
+* {
+  "message": "Date is not in the correct format. Correct format is YYYY-MM-DD"
+}
+* @apiErrorExample {json} Date is in the past:
+* {
+  "message": "Date is in the past."
+}
+* @apiErrorExample {json} Time not in 30 minute increments:
+* {
+  "message": "Appointments can only be booked in 30 minute intervals."
+}
+ */
 app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
   //check if body is not null
   if (req.body == null || Object.keys(req.body).length === 0) {
@@ -301,6 +610,48 @@ app.post(apiVersion + '/appointments', async (req: Request, res: Response) => {
 });
 
 //post endpoint for barbers, takes in a username and generates a barber
+/** This endpoint creates a new barber, from an existing user.
+ *  @api {post} /api/v1/barbers Create a new barber
+ *  @apiName CreateBarber
+ *  @apiGroup Barbers
+ *  @apiVersion 1.0.0
+ *  @apiBody {String} username The username of the user who is becoming a barber
+ *  @apiBody {Object[]} services The services the barber provides
+ *  @apiBody {String} services.name The name of the service
+ *  @apiBody {Integer} services.price The price of the service
+ *  @apiBody {String} services.description The description of the service
+ *  @apiSuccess {Boolean} [acknowledged] True if the barber was created successfully
+ *  @apiSuccess {String} [insertedId] The id of the barber
+ *  @apiSuccessExample {json} Success:
+ *  {
+    "acknowledged": true,
+    "insertedId": "635ea331f91c27f4fa78f0c8"
+}
+* @apiErrorExample {json} User with invalid username:
+* {
+    "message": "No user with this username"
+}
+* @apiErrorExample {json} Request body did not contain all required fields:
+* {
+  "message": "Bad request. Request needs to contain a username. All barbers must have at least one service."
+}
+* @apiErrorExample {json} Request body empty:
+* {
+  "message": "Invalid body"
+}
+* @apiErrorExample {json} User is already a barber:
+* {
+  "message": "This user is already a barber."
+}
+* @apiErrorExample {json} Service isn't an array:
+* {
+  "message": "Bad request. Services needs to be an array."
+}
+* @apiErrorExample {json} Service arry does not contain all required fields:
+* {
+  "message": "Bad request. Services needs to be an array of objects with name and price fields."
+}
+ */
 app.post(apiVersion + '/barbers', async (req: Request, res: Response) => {
   //check if body is not null
   if (req.body == null || Object.keys(req.body).length === 0) {
@@ -339,7 +690,36 @@ app.post(apiVersion + '/barbers', async (req: Request, res: Response) => {
 });
 
 
-app.post(apiVersion+"/login", async (req: Request, res: Response) => {
+/** This endpoint logs in a user.
+ * @api {post} /api/v1/login Login a user
+ * @apiName LoginUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiBody {String} username The username of the user
+ * @apiBody {String} password The password of the user
+ * @apiSuccess {String} [token] The token of the user
+ * @apiSuccessExample {json} Success:
+ * {
+ *  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im9saXN0YXJyaSIsInVzZXJpZCI6IjYzMjVkOTBmNDU4NGY3YTU3MTkyMTEzYyIsImlzQmFyYmVyIjpmYWxzZSwiaWF0IjoxNjY2MTA3NjE3LCJleHAiOjE2Njg2OTk2MTd9.ZqDsRv8C7_IJ8glMlnCxZk3tw9Olgsxw2Jg0O2zz7iU"
+ * }
+ * @apiErrorExample {json} Body is empty:
+ * {
+ * "message": "Invalid body"
+ * }
+ * @apiErrorExample {json} User does not exist:
+ * {
+ *  "message": "Invalid username or password."
+ * }
+ * @apiErrorExample {json} Password is incorrect:
+ * {
+ * "message": "Invalid username or password."
+ * }
+ * @apiErrorExample {json} Body does not contain all required fields:
+ * {
+ * "message": "Bad request. Request needs to contain username and password."
+ * }
+ */
+app.post(apiVersion + "/login", async (req: Request, res: Response) => {
   //check if body is not null
   if (req.body == null) {
     return res.status(400).json({ message: 'Invalid body' });
@@ -371,6 +751,29 @@ app.post(apiVersion+"/login", async (req: Request, res: Response) => {
    
 });
 
+/** This endpoint deletes a barbers.
+ * @api {delete} /api/v1/barbers/:id Delete a barber
+ * @apiName DeleteBarber
+ * @apiGroup Barbers
+ * @apiVersion 1.0.0
+ * @apiParam {String} id The id of the barber to delete
+ * @apiSuccess {Boolean} [acknowledged] True if the barber was deleted
+ * @apiSuccess {Number} [deletedCount] The number of barbers deleted, should be 1
+ * @apiSuccessExample {json} Success:
+ * {
+ *   "acknowledged": true,
+ *   "deletedCount": 1
+ *}
+ * @apiErrorExample {json} Barberid is not given:
+ * {
+ * "message": "Invalid id"
+ * }
+ * @apiErrorExample {json} Barber does not exist:
+ * {
+ *  "acknowledged": true,
+ *  "deletedCount": 0
+ *}
+*/
 app.delete(apiVersion + '/barbers/:id', async (req: Request, res: Response) => {
   //check if id is not null
   if (req.params.id == null) {
@@ -381,6 +784,30 @@ app.delete(apiVersion + '/barbers/:id', async (req: Request, res: Response) => {
   return res.status(200).json(Barbers);
 });
 
+
+/** This endpoint deletes a user.
+ * @api {delete} /api/v1/users/:id Delete a user
+ * @apiName DeleteUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiParam {String} id The id of the user to delete
+ * @apiSuccess {Boolean} [acknowledged] True if the user was deleted
+ * @apiSuccess {Number} [deletedCount] The number of users deleted, should be 1
+ * @apiSuccessExample {json} Success:
+ * {
+ *   "acknowledged": true,
+ *   "deletedCount": 1
+ *}
+ * @apiErrorExample {json} Userid is not given:
+ * {
+ * "message": "Invalid id"
+ * }
+ * @apiErrorExample {json} User does not exist:
+ * {
+ *  "acknowledged": true,
+ *  "deletedCount": 0
+ *}
+*/
 app.delete(apiVersion + '/users/:id', async (req: Request, res: Response) => {
   //check if id is not null
   if (req.params.id == null) {
@@ -391,7 +818,33 @@ app.delete(apiVersion + '/users/:id', async (req: Request, res: Response) => {
   return res.status(200).json(Users);
 });
 
-//delete endpoint for appointments (using the mongodb id) -- possibly create our own id? 
+
+/** This endpoint deletes an appointment.
+ * @api {delete} /api/v1/appointments/:id Delete an appointment
+ * @apiName DeleteAppointment
+ * @apiGroup Appointments
+ * @apiVersion 1.0.0
+ * @apiParam {String} id The id of the appointment to delete
+ * @apiSuccess {Boolean} [acknowledged] True if the appointment was deleted
+ * @apiSuccess {Number} [deletedCount] The number of appointments deleted, should be 1
+ * @apiSuccessExample {json} Success:
+ * {
+ *  "acknowledged": true,
+ * "deletedCount": 1
+ * }
+ * @apiErrorExample {json} Appointmentid is not given:
+ * {
+ * "message": "Invalid id"
+ * }
+ * @apiErrorExample {json} Appointment does not exist:
+ * {
+ * "message": "No appointment with this id"
+ * }
+ * @apiErrorExample {json} Appointment is not in the future:
+ * {
+ * "message": "Cannot delete appointments in the past."
+ * }
+ */
 app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response) => {
   //check if id is not null and valid mongodb id
   if (req.params.id == null || req.params.id == "" || !mongodb.ObjectId.isValid(req.params.id)) { 
@@ -413,6 +866,31 @@ app.delete(apiVersion + '/appointments/:id', async (req: Request, res: Response)
   }
 });
 
+/** This endpoint handles notifications for users.
+ * If the user has an appointment that needs rescheduling, the user will receive a notification.
+ * @api {get} /api/v1/notifications/ Get notifications for a user
+ * @apiName GetNotifications
+ * @apiGroup Notifications
+ * @apiVersion 1.0.0
+ * @apiHeader {String} Authorization The authorization token
+ * @apiSuccess {String} [message] The message of the notification
+ * @apiSuccessExample {json} Notification for user:
+ * {
+ *  "message":"Your appointment with Siggi Rakari on 2022-05-20 needs rescheduling."
+ * }
+ * @apiSuccessExample {json} Notification for barber:
+ * {
+ * "message":"Your appointment with Ólafur on 2022-05-20 has been cancelled."
+ * }
+ * @apiSuccessExample {json} No notification for user:
+ * {
+ * []
+ * }
+ * @apiErrorExample {json} Invalid or missing token:
+ * {
+ * "message": "Unauthorized"
+ * }
+ */ 
 app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
   // check if the user is logged in
   const token = req.headers.authorization;
@@ -435,10 +913,10 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
   // if decoded.isBarber is false, then we need to check if the user has any appointments with the flag set to true
   let appointments = null;
   if (decoded.isBarber) {
-    appointments = await Database.collection("Appointments").find({barberid: decoded.barberid, $or: [{cancelled: true}, {needsRescheduling: true}]}).toArray();
+    appointments = await Database.collection("Appointments").find({barberid: decoded.barberid, $or: [{needsRescheduling: true}]}).toArray();
   }
   else {
-    appointments = await Database.collection("Appointments").find({userid: decoded.userid, $or: [{cancelled: true}, {needsRescheduling: true}]}).toArray();
+    appointments = await Database.collection("Appointments").find({userid: decoded.userid, $or: [{needsRescheduling: true}]}).toArray();
   }
   if (appointments == null) {
     return res.status(200).json([]);
@@ -452,7 +930,11 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
     barberids.push(appointment.barberid);
     userids.push(appointment.userid);
   });
-  const barbers = await Database.collection("Barbers").find({_id:  { $in: barberids.map((id: any) => mongodb.ObjectId(id)) }}).toArray();
+  //get all barbers and join user.username from collection "Users" on barber.username and add user.name to barber as name aggregate
+  const barbers = await Database.collection("Barbers").aggregate([
+    {$lookup: {from: "Users", localField: "username", foreignField: "username", as: "user"}},
+    {$addFields: {name: "$user.name"}}
+  ]).toArray();
   const users = await Database.collection("Users").find({}).toArray();
   
   
@@ -478,11 +960,7 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
         barbers.filter(barber => {
           if (barber._id == appointments[i].barberid) {
             //find user with same username as barber
-            users.filter(user => {
-              if (user.username == barber.username) {
-                name = user.name;
-              }
-            });
+            name = barber.name;
           }
         });
       }
@@ -500,7 +978,62 @@ app.get(apiVersion + '/notifications', async (req: Request, res: Response) => {
   return res.status(200).json(notifications);
 });
   
-// patch endpoint for appointments (using the mongodb id) used for marking appointments as cancelled or rescheduled or removing the flag
+/** This endpoint handles modifications to appointments, such as rescheduling and cancelling.
+ * @api {patch} /api/v1/appointments/:id Modify an appointment
+ * @apiName ModifyAppointment
+ * @apiGroup Appointments
+ * @apiVersion 1.0.0
+ * @apiParam {String} id The id of the appointment
+ * @apiBody {Boolean} [cancelled] Cancels the appointment if set to true
+ * @apiBody {Boolean} [needsRescheduling] Flags the appointment as needing rescheduling if set to true
+ * @apiBody {String} [date] The new date of the appointment
+ * @apiBody {String} [time] The new time of the appointment
+ * @apiSuccess {Boolean} [acknowledged] True if the appointment was found
+ * @apiSuccess {Integer} [modifiedCount] The number of appointments modified, should be 1
+ * @apiSuccess {Integer} [upsertedId]  The new id of the appointment that was modified, should be null
+ * @apiSuccess {Integer} [upsertedCount] The number of appointments upserted, should be 0
+ * @apiSuccess {Integer} [matchedCount] The number of appointments matched, should be 1
+ * @apiSuccessExample {json} Appointment cancelled:
+ * {
+    "acknowledged": true,
+    "modifiedCount": 1,
+    "upsertedId": null,
+    "upsertedCount": 0,
+    "matchedCount": 1
+}
+  * @apiSuccessExample {json} Appointment rescheduled:
+  * {
+  * "acknowledged": true,
+  * "modifiedCount": 1,
+  * "upsertedId": null,
+  * "upsertedCount": 0,
+  * "matchedCount": 1
+  * }
+  * @apiErrorExample {json} No id provided:
+  * {
+  *   "message": "Invalid id"
+  * }
+  * @apiErrorExample {json} Invalid id:
+  * {
+  *  "message": "No appointment with this id"
+  * }
+  * @apiErrorExample {json} Date is invalid:
+  * {
+  * "message": "Date is not in the correct format. Correct format is YYYY-MM-DD"
+  * }
+  * @apiErrorExample {json} Time is invalid:
+  * {
+  * "message": "Time is not in the correct format. Correct format is HH:MM"
+  * }
+  * @apiErrorExample {json} Time unavailable:
+  * {
+  * "message": "Appointments can only be booked in 30 minute intervals."
+  * }
+  * @apiErrorExample {json} Canceling appointment in the past:
+  * {
+  * "message": "Cannot cancel appointments in the past."
+  * }
+ */ 
 app.patch(apiVersion + '/appointments/:id', async (req: Request, res: Response) => {
   //check if id is not null and valid mongodb id
   if (req.params.id == null || req.params.id == "" || !mongodb.ObjectId.isValid(req.params.id)) {
@@ -524,8 +1057,8 @@ app.patch(apiVersion + '/appointments/:id', async (req: Request, res: Response) 
   let currentDate = new Date(appointment.date + " " + appointment.time);
   if (currentDate >= new Date()) {
 
-    if(req.body.cancelled == true) {  // If the appointment is cancelled, set the cancelled flag to true
-      const Appointments:JSON = await Database.collection("Appointments").updateOne({_id: mongodb.ObjectId(req.params.id)}, {$set: {cancelled: true}});
+    if(req.body.cancelled == true) {  // If the appointment is cancelled, set the cancelled flag to true and set the needsRescheduling flag to false
+      const Appointments:JSON = await Database.collection("Appointments").updateOne({_id: mongodb.ObjectId(req.params.id)}, {$set: {cancelled: true, needsRescheduling: false}});
       return res.status(200).json(Appointments);
     }
 
@@ -568,6 +1101,49 @@ app.patch(apiVersion + '/appointments/:id', async (req: Request, res: Response) 
   }
 });
 
+/** This endpoint is used by barbers to book a holiday, if an appointment is booked during a holiday, the appointment is cancelled and the user is notified.
+ * At that point the user can either fully cancel their appointment or rechedule it. No further appointments can be booked during the holiday.
+ * @api {post} /api/v1/holidays/ Create a holiday
+ * @apiName CreateHoliday
+ * @apiGroup Holidays
+ * @apiVersion 1.0.0
+ * @apiHeader {String} Authorization The authorization token.
+ * @apiBody {String} date The date of the holiday.
+ * @apiSuccess {String} [acknowledged] True if the holiday has been booked.
+ * @apiSuccess {Integer} [modifiedCount] The number of appointments that were cancelled.
+ * @apiSuccess {Integer} [upsertedId] Should be null.
+ * @apiSuccess {Integer} [upsertedCount] Should be 0.
+ * @apiSuccess {Integer} [matchedCount] The number of appointments that were found on that date.
+ * @apiSuccessExample {json} Success:
+ * {
+    "acknowledged": true,
+    "modifiedCount": 1,
+    "upsertedId": null,
+    "upsertedCount": 0,
+    "matchedCount": 0
+}
+ * 
+ * @apiErrorExample {json} Invalid/missing token:
+ * {
+ * "message": "Invalid token"
+ * }
+ * @apiErrorExample {json} Invalid/incorrect date format:
+ * {
+ * "message": "Invalid date"
+ * }
+ * @apiErrorExample {json} Barber already has a holiday on this date:
+ * {
+ * "message": "Holiday already exists"
+ * }
+ * @apiErrorExample {json} Date is in the past:
+ * {
+ * "message": "Invalid date"
+ * }
+ * @apiErrorExample {json} User is not a barber:
+ * {
+ * "message": "Invalid token"
+ * }
+ */
 app.post(apiVersion + '/holiday', async (req: Request, res: Response) => {
   //check if token is valid
   if (req.headers.authorization == null || req.headers.authorization == "") {
@@ -618,6 +1194,44 @@ app.post(apiVersion + '/holiday', async (req: Request, res: Response) => {
   }
 });
     
+/** This endpoint is used by barbers to delete a holiday. This allowes users to book appointments on that day again.
+ * @api {delete} /api/v1/holidays/ Delete a holiday
+ * @apiName DeleteHoliday
+ * @apiGroup Holidays
+ * @apiVersion 1.0.0
+ * @apiBody {String} date The date of the holiday.
+ * @apiBody {String} barberid The id of the barber whos holiday we are deleting.
+ * @apiSuccess {String} [acknowledged] True if the holiday has been deleted.
+ * @apiSuccess {Integer} [modifiedCount] The number of holidays that were cancelled.
+ * @apiSuccess {Integer} [upsertedId] Should be null.
+ * @apiSuccess {Integer} [upsertedCount] Should be 0.
+ * @apiSuccess {Integer} [matchedCount] The number of holidays that were found on that date.
+ * @apiSuccessExample {json} Success:
+ * {
+ * "acknowledged": true,
+ * "modifiedCount": 1,
+ * "upsertedId": null,
+ * "upsertedCount": 0,
+ * "matchedCount": 0
+ * }
+ * @apiErrorExample {json} Body is empty:
+ * {
+ * "message": "Invalid request"
+ * }
+ * @apiErrorExample {json} Date is missing/invalid:
+ * {
+ * "message": "Invalid date"
+ * }
+ * @apiErrorExample {json} Barberid is missing/invalid:
+ * {
+ * "message": "Invalid barberid"
+ * }
+ * @apiErrorExample {json} Barber does not have a holiday on this date:
+ * {
+ * "message": "Holiday does not exist"
+ * }
+ * 
+ */
 app.delete(apiVersion + '/holiday', async (req: Request, res: Response) => {
   // get json object with date and barberid
   const holiday = req.body;
