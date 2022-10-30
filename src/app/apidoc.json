@@ -1,0 +1,10 @@
+{
+    "name": "The Barber Shop",
+    "version": "1.0.0",
+    "description": "A gentleman's barber shop API",
+    "template": {
+      "withCompare": false,
+      "showRequiredLabels": true
+    }
+
+  }

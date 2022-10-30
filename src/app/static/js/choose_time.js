@@ -48,7 +48,9 @@ async function populateDateBox(date) {
         }
         console.log(data);
         for (var i = 0; i < data.length; i++) {
-            unavailAppointments.push(data[i]["time"]);
+            if(!data[i].needsRescheduling && !data[i].cancelled) {
+                unavailAppointments.push(data[i]["time"]);
+            }
         }
         console.log(unavailAppointments);
         if(!timebox.hasChildNodes()){
